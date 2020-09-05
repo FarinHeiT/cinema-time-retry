@@ -1,0 +1,3 @@
+class Config:
+    SECRET_KEY = "TOPSECRETKEY!"
+    WTF_CSRF_SECRET_KEY = 'TOPSECRETKEY!'
