@@ -1,3 +1,5 @@
+{% import "videoSourceMacros.html" as videoMacros %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,23 +22,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
             integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-    <div class="container mt-5">
-
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroup-sizing-default">Video Link</span>
-            </div>
-            <input type="text" class="form-control" aria-label=""
-                   aria-describedby="inputGroup-sizing-default" id="videoLink">
-        </div>
-
-        <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
-    </div>
+    {{ videoMacros.youtube(video_link) }}
 </body>
-
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
 </html>

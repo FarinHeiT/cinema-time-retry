@@ -11,10 +11,13 @@ socket.on('disconnect', () => {
 const createRoom = document.querySelector('button[name="createRoom"]');
 
 createRoom.addEventListener('click', () => {
-    let videoLink = document.querySelector('input[name="videoLink"]');
+    let videoLink = document.querySelector('#videoLink').value;
 
     socket.emit('create_room', {
         videoLink
     });
 });
 
+socket.on('redirect', function (data) {
+    window.location = data.url;
+});
