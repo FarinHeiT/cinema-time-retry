@@ -18,7 +18,7 @@ def index():
 def room(room_name):
     link = json.loads(redis_db.get(room_name))['playlist'][0]
     print(link)
-    return render_template('room.html', video_link=link)
+    return render_template('room.html', video_link=link, source='youtube')
 
 
 @socketio.on('connection')

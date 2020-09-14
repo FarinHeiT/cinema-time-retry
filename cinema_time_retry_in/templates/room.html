@@ -24,6 +24,8 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-    {{ videoMacros.youtube(video_link) }}
+    {% if source == "youtube" %}
+        {{ videoMacros.youtube(video_link) }}
+    {% endif %}
 </body>
 </html>
