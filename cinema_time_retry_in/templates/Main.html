@@ -23,6 +23,12 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
+<form>
+    {{ form.hidden_tag() }}
+    {{ form.name.label }} {{ form.name(type="text", class="form-control", aria-label="",
+                   aria-describedby="inputGroup-sizing-default") }}
+     <input type="submit" value="Go">
+</form>
     <div class="container mt-5">
 
         <div class="input-group mb-3">
