@@ -24,9 +24,8 @@
 </head>
 <body>
 <form>
-    {{ form.hidden_tag() }}
-    {{ form.name.label }} {{ form.name(type="text", class="form-control", aria-label="",
-                   aria-describedby="inputGroup-sizing-default") }}
+     {{ form.csrf_token }}
+{{ form.name() }}
      <input type="submit" value="Go">
 </form>
     <div class="container mt-5">
