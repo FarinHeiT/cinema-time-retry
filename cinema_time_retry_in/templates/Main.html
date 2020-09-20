@@ -23,9 +23,9 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-<form>
+<form method="POST" action="/">
      {{ form.csrf_token }}
-{{ form.name() }}
+    {{ form.name }}
      <input type="submit" value="Go">
 </form>
     <div class="container mt-5">

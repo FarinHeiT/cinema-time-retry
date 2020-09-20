@@ -24,8 +24,27 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+
+<button id="sayHi">Say hi to everyone</button>
+
 {% if source == "youtube" %}
-{{ videoMacros.youtube(video_link) }}
+    {{ videoMacros.youtube(video_link) }}
 {% endif %}
+
+<script>
+    let room_name = '{{ room_name }}'
+    let socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket.on('connect', () => {
+        socket.emit('join_room', {'room_name': room_name})
+    });
+
+    socket.on('displaySayHi', () => {
+       alert('Someone said hi to you!')
+    });
+
+    document.querySelector('#sayHi').addEventListener('click', () => {
+        socket.emit('sayHi')
+    })
+</script>
 </body>
 </html>
