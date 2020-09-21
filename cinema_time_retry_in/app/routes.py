@@ -15,10 +15,6 @@ general = Blueprint('general', __name__)
 
 @general.route('/', methods=('GET', 'POST'))
 def index():
-    # Generate session id
-    if '_id' not in session:
-        session['_id'] = uuid.uuid1().hex
-
     print(session['_id'])
 
     # Username form
@@ -88,3 +84,8 @@ def create_room(data):
 def say_hi(data):
     print(data)
     socketio.emit('displaySayHi', room=data['room'])
+
+@general.before_request
+def add_sid():
+    if '_id' not in session:
+        session['_id'] = uuid.uuid1().hex
