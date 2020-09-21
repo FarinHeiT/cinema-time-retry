@@ -1,6 +1,7 @@
 import json
 import uuid
 from flask import Flask, render_template, Blueprint, url_for, redirect, session, request
+from flask_socketio import join_room as socket_join_room
 
 from cinema_time_retry_in import socketio, redis_db
 from . import forms
@@ -43,7 +44,7 @@ def room(room_name):
 
 @socketio.on('join_room')
 def join_room(data):
-    join_room(data['room_name'])
+    socket_join_room(data['room_name'])
 
 
 @general.route("/password", methods=('GET', 'POST'))
@@ -84,5 +85,6 @@ def create_room(data):
 
 
 @socketio.on('sayHi')
-def say_hi():
-    socketio.emit('displaySayHi')
+def say_hi(data):
+    print(data)
+    socketio.emit('displaySayHi', room=data['room'])

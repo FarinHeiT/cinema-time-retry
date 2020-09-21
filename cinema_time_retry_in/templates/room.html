@@ -43,7 +43,7 @@
     });
 
     document.querySelector('#sayHi').addEventListener('click', () => {
-        socket.emit('sayHi')
+        socket.emit('sayHi', {'room': room_name})
     })
 </script>
 </body>
