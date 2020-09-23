@@ -17,12 +17,7 @@ general = Blueprint('general', __name__)
 def index():
     print(session['_id'])
 
-    # Username form
-    form = forms.name_form()
-    if form.validate_on_submit() and request.method == 'POST':
-        session['username'] = form.name.data
-
-    return render_template("Main.html", form=form)
+    return render_template("Main.html")
 
 
 @general.route('/room/<room_name>')
@@ -49,14 +44,16 @@ def password_in():
     form = forms.password_form()
     if form.validate_on_submit():
         if form.password.data == json.loads(redis_db.get(room_name))['password']:
-
-            data = json.loads(redis_db.get(room_name))
-            users = data['users']
-            users.append(session['_id'])
-            data = json.loads(redis_db.get(room_name))
-            data['users'] = users
-
-            redis_db.set(room_name, json.dumps(data))
+            if not form.name.data in json.loads(redis_db.get(room_name))['names']:
+                session['username'] = form.name.data
+                data = json.loads(redis_db.get(room_name))
+                users = data['users']
+                users.append(session['_id'])
+                data['users'] = users
+                names = data['names']
+                names.append(form.name.data)
+                data['names'] = names
+                redis_db.set(room_name, json.dumps(data))
 
             return redirect(url_for('general.room', room_name=room_name))
 
@@ -73,7 +70,8 @@ def create_room(data):
     room = {
         'playlist': [data['videoLink']],
         'password': data['password'],
-        'users': []
+        'users': [],
+        'names' : []
     }
 
     redis_db.set(room_name, json.dumps(room))
