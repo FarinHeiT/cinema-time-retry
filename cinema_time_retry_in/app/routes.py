@@ -43,23 +43,31 @@ def join_room(data):
 def password_in():
     room_name = request.args.get('room_name')
     form = forms.password_form()
+    error = None
     if form.validate_on_submit():
         if form.password.data == json.loads(redis_db.get(room_name))['password']:
             if not form.name.data in json.loads(redis_db.get(room_name))['names']:
-                session['username'] = form.name.data
                 data = json.loads(redis_db.get(room_name))
-                users = data['users']
-                users.append(session['_id'])
-                data['users'] = users
+                session['username'] = form.name.data
                 names = data['names']
                 names.append(form.name.data)
                 data['names'] = names
                 redis_db.set(room_name, json.dumps(data))
+            else:
+                error = "*Name Is Taken"
+                return redirect(url_for('general.password_in', room_name=room_name, error=error))
+
+            data = json.loads(redis_db.get(room_name))
+            users = data['users']
+            users.append(session['_id'])
+            data['users'] = users
+            redis_db.set(room_name, json.dumps(data))
 
             return redirect(url_for('general.room', room_name=room_name))
 
         else:
-            return redirect(url_for('general.password_in', room_name=room_name))
+            error = "*Wrong Password"
+            return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
     return render_template("password.html", form=form)
 
@@ -71,9 +79,11 @@ def create_room(data):
     room = {
         'playlist': [data['videoLink']],
         'password': data['password'],
-        'users': [],
+        'users': [session['_id']
+                  ],
         'names' : []
     }
+
 
     redis_db.set(room_name, json.dumps(room))
     socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)})
