@@ -23,6 +23,7 @@ def index():
 @general.route('/room/<room_name>')
 def room(room_name):
     print(json.loads(redis_db.get(room_name))['users'])
+    print(json.loads(redis_db.get(room_name))['names'])
     if session['_id'] in json.loads(redis_db.get(room_name))['users']:
         link = json.loads(redis_db.get(room_name))['playlist'][0]
         password = json.loads(redis_db.get(room_name))['password']
