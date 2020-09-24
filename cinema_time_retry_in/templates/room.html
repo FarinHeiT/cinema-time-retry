@@ -31,20 +31,10 @@
     {{ videoMacros.youtube(video_link) }}
 {% endif %}
 
+<script src="{{ url_for('static', filename='js/room.js') }}"></script>
+
 <script>
     let room_name = '{{ room_name }}'
-    let socket = io.connect('http://' + document.domain + ':' + location.port);
-    socket.on('connect', () => {
-        socket.emit('join_room', {'room_name': room_name})
-    });
-
-    socket.on('displaySayHi', () => {
-       alert('Someone said hi to you!')
-    });
-
-    document.querySelector('#sayHi').addEventListener('click', () => {
-        socket.emit('sayHi', {'room': room_name})
-    })
 </script>
 </body>
 </html>
