@@ -31,6 +31,10 @@
     {{ videoMacros.youtube(video_link) }}
 {% endif %}
 
+{% for i in online %}
+<p>{{ names[i] }}</p>
+{% endfor %}
+
 <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 
 <script>

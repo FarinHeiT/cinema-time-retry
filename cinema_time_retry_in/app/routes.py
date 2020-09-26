@@ -2,6 +2,7 @@ import json
 import uuid
 from flask import Flask, render_template, Blueprint, url_for, redirect, session, request
 from flask_socketio import join_room as socket_join_room
+from flask_socketio import close_room
 
 from cinema_time_retry_in import socketio, redis_db
 from . import forms
@@ -24,12 +25,19 @@ def index():
 def room(room_name):
     print(json.loads(redis_db.get(room_name))['users'])
     print(json.loads(redis_db.get(room_name))['names'])
+    print(json.loads(redis_db.get(room_name))['online'])
     if session['_id'] in json.loads(redis_db.get(room_name))['users']:
         link = json.loads(redis_db.get(room_name))['playlist'][0]
         password = json.loads(redis_db.get(room_name))['password']
-        return render_template('room.html', video_link=link, source='youtube',
+        online = json.loads(redis_db.get(room_name))['online']
+        names = json.loads(redis_db.get(room_name))['names']
+        return render_template('room.html',
+                               video_link=link,
+                               source='youtube',
                                password=password,
-                               room_name=room_name)
+                               room_name=room_name,
+                               online=online,
+                               names=names)
     else:
         return redirect(url_for('general.password_in', room_name=room_name))
 
@@ -39,6 +47,17 @@ def join_room(data):
     socket_join_room(data['room_name'])
 
 
+@socketio.on('discon')
+def online_disconnect(data):
+    data = json.loads(redis_db.get(data['room']))
+    online = data['online']
+    if online == []:
+        close_room(data['room'])
+
+    online.remove(session['_id'])
+    data['online'] = online
+    redis_db.set(data['room'], json.dumps(data))
+
 @general.route("/password", methods=('GET', 'POST'))
 def password_in():
     room_name = request.args.get('room_name')
@@ -46,11 +65,11 @@ def password_in():
     error = None
     if form.validate_on_submit():
         if form.password.data == json.loads(redis_db.get(room_name))['password']:
-            if not form.name.data in json.loads(redis_db.get(room_name))['names']:
+            if not form.name.data in (json.loads(redis_db.get(room_name))['names']).values():
                 data = json.loads(redis_db.get(room_name))
                 session['username'] = form.name.data
                 names = data['names']
-                names.append(form.name.data)
+                names[session['_id']] = form.name.data
                 data['names'] = names
                 redis_db.set(room_name, json.dumps(data))
             else:
@@ -58,6 +77,9 @@ def password_in():
                 return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
             data = json.loads(redis_db.get(room_name))
+            online = data['online']
+            online.append(session['_id'])
+            data['online'] = online
             users = data['users']
             users.append(session['_id'])
             data['users'] = users
@@ -81,7 +103,9 @@ def create_room(data):
         'password': data['password'],
         'users': [session['_id']
                   ],
-        'names' : []
+        'online': [session['_id']
+             ],
+        'names' : {session['_id'] : 'admin'}
     }
 
 
