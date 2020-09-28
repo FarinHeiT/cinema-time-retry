@@ -145,7 +145,7 @@ def create_room(data):
 
     redis_db.set(room_name, json.dumps(room))
 
-    socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)})
+    socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)}, room=request.sid)
 
 
 @socketio.on('sayHi')
