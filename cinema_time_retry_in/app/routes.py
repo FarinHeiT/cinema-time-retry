@@ -46,17 +46,17 @@ def room(room_name):
 def join_room(data):
     socket_join_room(data['room_name'])
 
-
-@socketio.on('discon')
+@socketio.on('disconnect')
 def online_disconnect(data):
-    data = json.loads(redis_db.get(data['room']))
-    online = data['online']
+    print("disconnect2")
+    room = json.loads(redis_db.get(data['room']))
+    online = room['online']
     if online == []:
         close_room(data['room'])
 
     online.remove(session['_id'])
-    data['online'] = online
-    redis_db.set(data['room'], json.dumps(data))
+    room['online'] = online
+    redis_db.set(data['room'], json.dumps(room))
 
 @general.route("/password", methods=('GET', 'POST'))
 def password_in():

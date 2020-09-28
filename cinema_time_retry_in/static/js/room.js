@@ -19,10 +19,6 @@ document.querySelector('#sayHi').addEventListener('click', () => {
     socket.emit('sayHi', {'room': room_name})
 });
 
-socket.on('disconnect', () => {
-    socket.emit('discon', {'room': room_name})
-})
-
 
 // YT JS API initialization
 const tag = document.createElement('script');
