@@ -27,6 +27,14 @@ def room(room_name):
     print(json.loads(redis_db.get(room_name))['names'])
     print(json.loads(redis_db.get(room_name))['online'])
     if session['_id'] in json.loads(redis_db.get(room_name))['users']:
+        #puting user in online list
+        data = json.loads(redis_db.get(room_name))
+        online = data['online']
+        online.append(session['_id'])
+        data['online'] = online
+        redis_db.set(room_name, json.dumps(data))
+
+        # data from redis
         link = json.loads(redis_db.get(room_name))['playlist'][0]
         password = json.loads(redis_db.get(room_name))['password']
         online = json.loads(redis_db.get(room_name))['online']
@@ -59,12 +67,15 @@ def online_disconnect():
 
     online = room['online']
 
-    if online == []:
-        close_room(room_name)
 
     online.remove(session['_id'])
     room['online'] = online
     redis_db.set(room_name, json.dumps(room))
+
+    if json.loads(redis_db.get(room_name))['online'] == []:
+        close_room(room_name)
+
+
 
 
 @general.route("/password", methods=('GET', 'POST'))
@@ -74,6 +85,7 @@ def password_in():
     error = None
     if form.validate_on_submit():
         if form.password.data == json.loads(redis_db.get(room_name))['password']:
+            # seting username and checking if its already in
             if not form.name.data in (json.loads(redis_db.get(room_name))['names']).values():
                 data = json.loads(redis_db.get(room_name))
                 session['username'] = form.name.data
@@ -82,13 +94,12 @@ def password_in():
                 data['names'] = names
                 redis_db.set(room_name, json.dumps(data))
             else:
+                # making error
                 error = "*Name Is Taken"
                 return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
+            # adding sid in users list
             data = json.loads(redis_db.get(room_name))
-            online = data['online']
-            online.append(session['_id'])
-            data['online'] = online
             users = data['users']
             users.append(session['_id'])
             data['users'] = users
@@ -97,6 +108,7 @@ def password_in():
             return redirect(url_for('general.room', room_name=room_name))
 
         else:
+            # making error
             error = "*Wrong Password"
             return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
@@ -107,6 +119,7 @@ def password_in():
 def create_room(data):
     room_name = generate_room_name()
 
+    # main room settings
     room = {
         'playlist': [data['videoLink']],
         'password': data['password'],
@@ -118,6 +131,7 @@ def create_room(data):
     }
 
     redis_db.set(room_name, json.dumps(room))
+
     socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)})
 
 
