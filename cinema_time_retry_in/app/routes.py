@@ -33,9 +33,10 @@ def room(room_name):
         # adding user in online list
         data = json.loads(redis_db.get(room_name))
         online = data['online']
-        online.append(session['_id'])
-        data['online'] = online
-        redis_db.set(room_name, json.dumps(data))
+        if session['_id'] not in online:
+            online.append(session['_id'])
+            data['online'] = online
+            redis_db.set(room_name, json.dumps(data))
 
         # data from redis
         link = json.loads(redis_db.get(room_name))['playlist'][0]
@@ -137,10 +138,8 @@ def create_room(data):
     room = {
         'playlist': [data['videoLink']],
         'password': data['password'],
-        'users': [session['_id']
-                  ],
-        'online': [session['_id']
-                   ],
+        'users': [session['_id']],
+        'online': [],
         'names': {session['_id']: 'admin'}
     }
 
