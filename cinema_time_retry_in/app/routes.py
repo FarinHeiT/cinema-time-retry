@@ -23,11 +23,14 @@ def index():
 
 @general.route('/room/<room_name>')
 def room(room_name):
+    # output user lists
     print(json.loads(redis_db.get(room_name))['users'])
     print(json.loads(redis_db.get(room_name))['names'])
     print(json.loads(redis_db.get(room_name))['online'])
+
     if session['_id'] in json.loads(redis_db.get(room_name))['users']:
-        #puting user in online list
+
+        # adding user in online list
         data = json.loads(redis_db.get(room_name))
         online = data['online']
         online.append(session['_id'])
@@ -62,18 +65,27 @@ def join_room(data):
 def online_disconnect():
     print("disconnect2")
 
+    # getting room name
     room_name = session['current_room']
+
+    # deleting user from online list
     room = json.loads(redis_db.get(room_name))
 
     online = room['online']
-
 
     online.remove(session['_id'])
     room['online'] = online
     redis_db.set(room_name, json.dumps(room))
 
+    # deleting if room is empty
     if json.loads(redis_db.get(room_name))['online'] == []:
+        print("deleting")
+
+        # deleting room from socketio
         close_room(room_name)
+
+        # deleting room from redis
+        redis_db.delete(room_name)
 
 
 
@@ -82,6 +94,7 @@ def online_disconnect():
 def password_in():
     room_name = request.args.get('room_name')
     form = forms.password_form()
+
     error = None
     if form.validate_on_submit():
         if form.password.data == json.loads(redis_db.get(room_name))['password']:
@@ -117,6 +130,7 @@ def password_in():
 
 @socketio.on('create_room')
 def create_room(data):
+    # generating random room name
     room_name = generate_room_name()
 
     # main room settings
@@ -141,6 +155,7 @@ def say_hi(data):
     socketio.emit('displaySayHi', room=data['room'])
 
 
+# making session id
 @general.before_request
 def add_sid():
     if '_id' not in session:
