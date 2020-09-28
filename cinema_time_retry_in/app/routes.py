@@ -31,6 +31,9 @@ def room(room_name):
         password = json.loads(redis_db.get(room_name))['password']
         online = json.loads(redis_db.get(room_name))['online']
         names = json.loads(redis_db.get(room_name))['names']
+
+        session['current_room'] = room_name
+
         return render_template('room.html',
                                video_link=link,
                                source='youtube',
@@ -46,17 +49,23 @@ def room(room_name):
 def join_room(data):
     socket_join_room(data['room_name'])
 
+
 @socketio.on('disconnect')
-def online_disconnect(data):
+def online_disconnect():
     print("disconnect2")
-    room = json.loads(redis_db.get(data['room']))
+
+    room_name = session['current_room']
+    room = json.loads(redis_db.get(room_name))
+
     online = room['online']
+
     if online == []:
-        close_room(data['room'])
+        close_room(room_name)
 
     online.remove(session['_id'])
     room['online'] = online
-    redis_db.set(data['room'], json.dumps(room))
+    redis_db.set(room_name, json.dumps(room))
+
 
 @general.route("/password", methods=('GET', 'POST'))
 def password_in():
@@ -104,10 +113,9 @@ def create_room(data):
         'users': [session['_id']
                   ],
         'online': [session['_id']
-             ],
-        'names' : {session['_id'] : 'admin'}
+                   ],
+        'names': {session['_id']: 'admin'}
     }
-
 
     redis_db.set(room_name, json.dumps(room))
     socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)})
@@ -117,6 +125,7 @@ def create_room(data):
 def say_hi(data):
     print(data)
     socketio.emit('displaySayHi', room=data['room'])
+
 
 @general.before_request
 def add_sid():

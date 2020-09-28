@@ -4,10 +4,6 @@ socket.on('connect', () => {
     socket.emit('connection', {'data': 'hEY'})
 });
 
-socket.on('disconnect', () => {
-    console.log('user disconnected');
-});
-
 const createRoom = document.querySelector('button[name="createRoom"]');
 
 createRoom.addEventListener('click', () => {
