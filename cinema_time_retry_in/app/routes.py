@@ -113,7 +113,6 @@ def password_in():
         else:
             # making error
             error = "*Wrong Password"
-            print(error)
             return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
         # seting username and checking if its already in
@@ -129,12 +128,8 @@ def password_in():
         else:
             # making error
             error = "*Name Is Taken"
-            print(error)
             return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
-
-
-    print(error)
     password_check = '' if json.loads(redis_db.get(room_name))['password'] == '' else None
     return render_template("password.html", form=form, error=error, password_check=password_check)
 
@@ -151,6 +146,7 @@ def create_room(data):
         'users': [session['_id']],
         'online': [],
         'names': {session['_id']: 'admin'}
+
     }
 
     redis_db.set(room_name, json.dumps(room))
