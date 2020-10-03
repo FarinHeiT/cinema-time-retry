@@ -37,6 +37,11 @@
 
         <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
     </div>
+<div class="container">
+    {% for i in rooms %}
+    <a href="/room/{{ i }}">{{ i }}</a>
+    {% endfor %}
+</div>
 </body>
 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>

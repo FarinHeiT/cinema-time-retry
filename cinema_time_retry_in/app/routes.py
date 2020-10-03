@@ -18,7 +18,9 @@ general = Blueprint('general', __name__)
 def index():
     print(session['_id'])
 
-    return render_template("Main.html")
+    rooms = redis_db.keys("*")
+
+    return render_template("Main.html", rooms=rooms)
 
 
 @general.route('/room/<room_name>')
@@ -70,7 +72,7 @@ def online_disconnect():
     room_name = session['current_room']
 
     # deleting user from online list
-    room = json.loads(redis_db.get(room_name))
+    room = json.loads(redis_db.get(str(room_name)))
 
     online = room['online']
 
@@ -80,7 +82,7 @@ def online_disconnect():
 
     # deleting if room is empty
     if json.loads(redis_db.get(room_name))['online'] == []:
-        print("deleting")
+        print(f"deleting {room_name}")
 
         # deleting room from socketio
         close_room(room_name)
@@ -96,21 +98,23 @@ def password_in():
     room_name = request.args.get('room_name')
     form = forms.password_form()
 
-    error = None
     if form.validate_on_submit():
+        # seting username and checking if its already in
+        if not form.name.data in (json.loads(redis_db.get(room_name))['names']).values():
+            data = json.loads(redis_db.get(room_name))
+            session['username'] = form.name.data
+            names = data['names']
+            names[session['_id']] = form.name.data
+            data['names'] = names
+            redis_db.set(room_name, json.dumps(data))
+        else:
+            # making error
+            error = "*Name Is Taken"
+            print(error)
+            return redirect(url_for('general.password_in', room_name=room_name, error=error))
+
+
         if form.password.data == json.loads(redis_db.get(room_name))['password']:
-            # seting username and checking if its already in
-            if not form.name.data in (json.loads(redis_db.get(room_name))['names']).values():
-                data = json.loads(redis_db.get(room_name))
-                session['username'] = form.name.data
-                names = data['names']
-                names[session['_id']] = form.name.data
-                data['names'] = names
-                redis_db.set(room_name, json.dumps(data))
-            else:
-                # making error
-                error = "*Name Is Taken"
-                return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
             # adding sid in users list
             data = json.loads(redis_db.get(room_name))
@@ -120,13 +124,16 @@ def password_in():
             redis_db.set(room_name, json.dumps(data))
 
             return redirect(url_for('general.room', room_name=room_name))
-
         else:
             # making error
             error = "*Wrong Password"
+            print(error)
             return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
-    return render_template("password.html", form=form)
+    error = None
+    print(error)
+    print(f"pas : {json.loads(redis_db.get(room_name))['password']}")
+    return render_template("password.html", form=form, error=error, password=json.loads(redis_db.get(room_name))['password'])
 
 
 @socketio.on('create_room')
