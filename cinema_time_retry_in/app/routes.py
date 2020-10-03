@@ -56,7 +56,7 @@ def room(room_name):
                                online=online,
                                names=names)
     else:
-        return redirect(url_for('general.password_in', room_name=room_name))
+        return redirect(url_for('general.password_in', room_name=room_name, error=None))
 
 
 @socketio.on('join_room')
@@ -96,17 +96,36 @@ def online_disconnect():
 @general.route("/password", methods=('GET', 'POST'))
 def password_in():
     room_name = request.args.get('room_name')
+    error = request.args.get('error')
     form = forms.password_form()
 
     if form.validate_on_submit():
+        # global room variable for seting add geting
+        room = json.loads(redis_db.get(room_name))
+
+        # checking password
+        if form.password.data == room['password']:
+            # adding sid in users list
+            users = room['users']
+            users.append(session['_id'])
+            room['users'] = users
+            redis_db.set(room_name, json.dumps(room))
+        else:
+            # making error
+            error = "*Wrong Password"
+            print(error)
+            return redirect(url_for('general.password_in', room_name=room_name, error=error))
+
         # seting username and checking if its already in
-        if not form.name.data in (json.loads(redis_db.get(room_name))['names']).values():
-            data = json.loads(redis_db.get(room_name))
+
+        if not form.name.data in (room['names']).values():
             session['username'] = form.name.data
-            names = data['names']
+            names = room['names']
             names[session['_id']] = form.name.data
-            data['names'] = names
-            redis_db.set(room_name, json.dumps(data))
+            room['names'] = names
+            redis_db.set(room_name, json.dumps(room))
+
+            return redirect(url_for('general.room', room_name=room_name))
         else:
             # making error
             error = "*Name Is Taken"
@@ -114,26 +133,10 @@ def password_in():
             return redirect(url_for('general.password_in', room_name=room_name, error=error))
 
 
-        if form.password.data == json.loads(redis_db.get(room_name))['password']:
 
-            # adding sid in users list
-            data = json.loads(redis_db.get(room_name))
-            users = data['users']
-            users.append(session['_id'])
-            data['users'] = users
-            redis_db.set(room_name, json.dumps(data))
-
-            return redirect(url_for('general.room', room_name=room_name))
-        else:
-            # making error
-            error = "*Wrong Password"
-            print(error)
-            return redirect(url_for('general.password_in', room_name=room_name, error=error))
-
-    error = None
     print(error)
-    print(f"pas : {json.loads(redis_db.get(room_name))['password']}")
-    return render_template("password.html", form=form, error=error, password=json.loads(redis_db.get(room_name))['password'])
+    password_check = '' if json.loads(redis_db.get(room_name))['password'] == '' else None
+    return render_template("password.html", form=form, error=error, password_check=password_check)
 
 
 @socketio.on('create_room')
