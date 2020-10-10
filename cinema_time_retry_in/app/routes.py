@@ -29,6 +29,7 @@ def room(room_name):
     print(json.loads(redis_db.get(room_name))['users'])
     print(json.loads(redis_db.get(room_name))['names'])
     print(json.loads(redis_db.get(room_name))['online'])
+    print(json.loads(redis_db.get(room_name))['admin'])
 
     if session['_id'] in json.loads(redis_db.get(room_name))['users']:
 
@@ -38,7 +39,14 @@ def room(room_name):
         if session['_id'] not in online:
             online.append(session['_id'])
             data['online'] = online
-            redis_db.set(room_name, json.dumps(data))
+
+        # giving the creator admin rights
+        if session['_id'] == data['creator']:
+            data['admin'] = data['creator']
+
+        # saving all that
+        redis_db.set(room_name, json.dumps(data))
+
 
         # data from redis
         link = json.loads(redis_db.get(room_name))['playlist'][0]
@@ -78,10 +86,9 @@ def online_disconnect():
 
     online.remove(session['_id'])
     room['online'] = online
-    redis_db.set(room_name, json.dumps(room))
 
     # deleting if room is empty
-    if json.loads(redis_db.get(room_name))['online'] == []:
+    if room['online'] == []:
         print(f"deleting {room_name}")
 
         # deleting room from socketio
@@ -89,6 +96,18 @@ def online_disconnect():
 
         # deleting room from redis
         redis_db.delete(room_name)
+
+        return
+
+
+
+    # trnsfer admin to another user when admin leaves
+    if session["_id"] == room['admin']:
+        room['admin'] = room['online'][0]
+
+    # saving all this crazy stuff
+    redis_db.set(room_name, json.dumps(room))
+
 
 
 
@@ -146,7 +165,8 @@ def create_room(data):
         'users': [session['_id']],
         'online': [],
         'names': {session['_id']: data['Name']},
-        'admin': {session['_id']: data['Name']}
+        'admin': session['_id'],
+        'creator': session['_id']
 
     }
 
