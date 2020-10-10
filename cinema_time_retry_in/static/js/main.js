@@ -9,9 +9,10 @@ const createRoom = document.querySelector('button[name="createRoom"]');
 createRoom.addEventListener('click', () => {
     let videoLink = document.querySelector('#videoLink').value;
     let password = document.querySelector('#password').value;
+    let Name = document.querySelector('#Name').value;
 
     socket.emit('create_room', {
-        videoLink, password
+        videoLink, password, Name
     });
 });
 

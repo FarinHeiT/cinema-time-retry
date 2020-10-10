@@ -145,7 +145,8 @@ def create_room(data):
         'password': data['password'],
         'users': [session['_id']],
         'online': [],
-        'names': {session['_id']: 'admin'}
+        'names': {session['_id']: data['Name']},
+        'admin': {session['_id']: data['Name']}
 
     }
 
