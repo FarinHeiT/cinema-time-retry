@@ -6,8 +6,8 @@ def generate_room_name():
 	words = ("Haphazard", "Hodgepodge", "Hogwash", "Hoodwink", "Hubbub", "Itty-Bitty"
 		, "Pompous", "Rambunctious", "Ramshackle", "Shenanigans", "Shrubs", "Skedaddle"
 		, "Squabble", "Squeegee", "Squelch", "Wishy-Washy", "Shrubbery", "Taradiddle"
-		, "Snickersnee", "Widdershins", "Collywobbles", "Gubbins", "Bumfuzzle", "Cattywampus",
-		 "Hatskers")
+		, "Snickersnee", "Widdershins", "Collywobbles", "Gubbins", "Bumfuzzle", "Cattywampus"
+		, "Hatskers")
 
 	first = random.choice(words)
 	seconond = random.choice(words)

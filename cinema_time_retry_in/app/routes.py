@@ -30,7 +30,8 @@ def room(room_name):
     print(json.loads(redis_db.get(room_name))['names'])
     print(json.loads(redis_db.get(room_name))['online'])
     print(json.loads(redis_db.get(room_name))['admin'])
-
+    if session['_id'] in json.loads(redis_db.get(room_name))['baned']:
+        return redirect(url_for('general.index'))
     if session['_id'] in json.loads(redis_db.get(room_name))['users']:
 
         # adding user in online list
@@ -109,6 +110,37 @@ def online_disconnect():
     redis_db.set(room_name, json.dumps(room))
 
 
+@socketio.on("ban")
+def ban_user(data):
+    # geting room name
+    roomname = session['current_room']
+
+    # finding Sid
+    SUID = None
+    for SID, Name in redis_db.scan_iter():
+        if Name == data['Name']:
+            SUID = SID
+            break
+
+    # room from db
+    room = json.loads(redis_db.get(str(roomname)))
+
+    # adding Sid To baned
+    baned = room['baned']
+    baned.append(SUID)
+    room['baned'] = baned
+
+    # remove Sid from users
+    users = room['users']
+    users.remove(SUID)
+    room['users'] = users
+
+    # saving all above
+    redis_db.set(str(roomname), json.dumps(room))
+
+    # redirecting dumb dumb to main screen
+    return redirect(url_for('general.index'))
+
 
 
 
@@ -165,8 +197,10 @@ def create_room(data):
         'users': [session['_id']],
         'online': [],
         'names': {session['_id']: data['Name']},
+        'baned': [],
         'admin': session['_id'],
         'creator': session['_id']
+
 
     }
 
