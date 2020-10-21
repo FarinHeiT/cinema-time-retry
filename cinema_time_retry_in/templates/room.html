@@ -25,6 +25,8 @@
 <body>
 
 <button id="sayHi">Say hi to everyone</button>
+<button type="button" class="btn btn-dark" id="banUser">Ban User</button>
+<input type="text" id="banUsername">
 
 {% if source == "youtube" %}
     {{ videoMacros.youtube(video_link) }}
