@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+
     <!-- JS, Popper.js, and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
             integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
@@ -40,9 +42,16 @@
         <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
     </div>
 <div class="container">
-    {% for i in rooms %}
-    <a href="/room/{{ i.decode()  }}">{{ i.decode()  }}</a>
-    {% endfor %}
+
+    <ul class="list-group">
+        {% for i in rooms %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="room/{{ i.decode() }}">{{ i.decode() }}</a>
+            </li>
+        {% endfor %}
+
+    </ul>
+
 </div>
 </body>
 
