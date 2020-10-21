@@ -116,8 +116,10 @@ def ban_user(data):
     roomname = session['current_room']
     room = json.loads(redis_db.get(roomname))
 
+    # Username to ban
     target_user = data['user']
 
+    # Get the SID of the user
     target_user_sid = list(room['names'].keys())[list(room['names'].values()).index(target_user)]
 
 
@@ -135,8 +137,6 @@ def ban_user(data):
     redis_db.set(roomname, json.dumps(room))
 
     print('user banned')
-
-
 
 
 @general.route("/password", methods=('GET', 'POST'))

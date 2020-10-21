@@ -41,7 +41,7 @@
     </div>
 <div class="container">
     {% for i in rooms %}
-    <a href="/room/{{ i }}">{{ i }}</a>
+    <a href="/room/{{ i.decode()  }}">{{ i.decode()  }}</a>
     {% endfor %}
 </div>
 </body>
