@@ -26,33 +26,33 @@ def index():
 @general.route('/room/<room_name>')
 def room(room_name):
 
-    
+    room = json.loads(redis_db.get(room_name))
+
     # If the user is banned - redirect him to index
-    if session['_id'] in json.loads(redis_db.get(room_name))['baned']:
+    if session['_id'] in room['baned']:
         return redirect(url_for('general.index'))
 
-    if session['_id'] in json.loads(redis_db.get(room_name))['users']:
+    if session['_id'] in room['users']:
 
         # adding user in online list
-        data = json.loads(redis_db.get(room_name))
-        online = data['online']
+        online = room['online']
         if session['_id'] not in online:
             online.append(session['_id'])
-            data['online'] = online
+            room['online'] = online
 
         # giving the creator admin rights
-        if session['_id'] == data['creator']:
-            data['admin'] = data['creator']
+        if session['_id'] == room['creator']:
+            room['admin'] = room['creator']
 
         # saving all that
-        redis_db.set(room_name, json.dumps(data))
+        redis_db.set(room_name, json.dumps(room))
 
 
         # data from redis
-        link = json.loads(redis_db.get(room_name))['playlist'][0]
-        password = json.loads(redis_db.get(room_name))['password']
-        online = json.loads(redis_db.get(room_name))['online']
-        names = json.loads(redis_db.get(room_name))['names']
+        link = room['playlist'][0]
+        password = room['password']
+        online = room['online']
+        names = room['names']
 
         session['current_room'] = room_name
 
