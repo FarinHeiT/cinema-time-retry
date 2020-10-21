@@ -25,13 +25,12 @@ def index():
 
 @general.route('/room/<room_name>')
 def room(room_name):
-    # output user lists
-    print(json.loads(redis_db.get(room_name))['users'])
-    print(json.loads(redis_db.get(room_name))['names'])
-    print(json.loads(redis_db.get(room_name))['online'])
-    print(json.loads(redis_db.get(room_name))['admin'])
+
+    
+    # If the user is banned - redirect him to index
     if session['_id'] in json.loads(redis_db.get(room_name))['baned']:
         return redirect(url_for('general.index'))
+
     if session['_id'] in json.loads(redis_db.get(room_name))['users']:
 
         # adding user in online list
@@ -112,34 +111,30 @@ def online_disconnect():
 
 @socketio.on("ban")
 def ban_user(data):
-    # geting room name
+    print('got ban')
+    # getting room name
     roomname = session['current_room']
+    room = json.loads(redis_db.get(roomname))
 
-    # finding Sid
-    SUID = None
-    for SID, Name in redis_db.scan_iter():
-        if Name == data['Name']:
-            SUID = SID
-            break
+    target_user = data['user']
 
-    # room from db
-    room = json.loads(redis_db.get(str(roomname)))
+    target_user_sid = list(room['names'].keys())[list(room['names'].values()).index(target_user)]
 
-    # adding Sid To baned
+
+    # adding Sid To banned
     baned = room['baned']
-    baned.append(SUID)
+    baned.append(target_user_sid)
     room['baned'] = baned
 
     # remove Sid from users
     users = room['users']
-    users.remove(SUID)
+    users.remove(target_user_sid)
     room['users'] = users
 
     # saving all above
-    redis_db.set(str(roomname), json.dumps(room))
+    redis_db.set(roomname, json.dumps(room))
 
-    # redirecting dumb dumb to main screen
-    return redirect(url_for('general.index'))
+    print('user banned')
 
 
 

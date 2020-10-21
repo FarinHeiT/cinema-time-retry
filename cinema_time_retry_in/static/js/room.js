@@ -15,6 +15,12 @@ socket.on('displaySayHi', () => {
     }
 });
 
+
+document.querySelector('#banUser').addEventListener('click', () => {
+    let banUsername = document.querySelector('#banUsername').value
+    socket.emit('ban', {'user': banUsername})
+});
+
 document.querySelector('#sayHi').addEventListener('click', () => {
     socket.emit('sayHi', {'room': room_name})
 });
