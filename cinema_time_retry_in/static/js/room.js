@@ -15,6 +15,11 @@ socket.on('displaySayHi', () => {
     }
 });
 
+document.querySelector('#bn').addEventListener('click', () => {
+    const nrn = document.querySelector('#rn').value
+    socket.emit('new_room_name', {'room_name':room_name, 'name' : nrn})
+})
+
 
 document.querySelector('#banUser').addEventListener('click', () => {
     let banUsername = document.querySelector('#banUsername').value

@@ -213,9 +213,9 @@ def say_hi(data):
 @socketio.on('new_room_name')
 def new_room_name(data):
     # getting all data we need
-    room_name = data['roomname']
+    room_name = data['room_name']
     new_name = data['name']
-    room = redis_db(room_name)
+    room = redis_db.get(room_name)
 
     # changing name in radis
     redis_db.delete(room)
@@ -223,6 +223,8 @@ def new_room_name(data):
 
     # changing name in session
     session['current_room'] = str(new_name)
+
+    print(f"new room name {new_name}")
 
 
 # making session id
