@@ -210,6 +210,21 @@ def say_hi(data):
     socketio.emit('displaySayHi', room=data['room'])
 
 
+@socketio.on('new_room_name')
+def new_room_name(data):
+    # getting all data we need
+    room_name = data['roomname']
+    new_name = data['name']
+    room = redis_db(room_name)
+
+    # changing name in radis
+    redis_db.delete(room)
+    redis_db.set(new_name, room)
+
+    # changing name in session
+    session['current_room'] = str(new_name)
+
+
 # making session id
 @general.before_request
 def add_sid():
