@@ -98,7 +98,8 @@ def create_room(data):
         'names': {session['_id']: data['Name']},
         'baned': [],
         'admin': session['_id'],
-        'creator': session['_id']
+        'creator': session['_id'],
+        'room_name': room_name
 
 
     }
@@ -118,14 +119,12 @@ def new_room_name(data):
     # getting all data we need
     room_name = data['room_name']
     new_name = data['name']
-    room = redis_db.get(room_name)
+    room = json.loads(redis_db.get(room_name))
 
     # changing name in radis
-    redis_db.delete(room)
-    redis_db.set(new_name, room)
+    room['room_name'] = new_name
+    redis_db.set(room_name, json.dumps(room))
 
     # changing name in session
-    session['current_room'] = str(new_name)
-
     print(f"new room name {new_name}")
 

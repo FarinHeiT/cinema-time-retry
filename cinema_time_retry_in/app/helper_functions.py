@@ -2,6 +2,7 @@ import random
 import redis
 import json
 
+
 def generate_room_name():
 	words = ("Haphazard", "Hodgepodge", "Hogwash", "Hoodwink", "Hubbub", "Itty-Bitty"
 		, "Pompous", "Rambunctious", "Ramshackle", "Shenanigans", "Shrubs", "Skedaddle"
@@ -14,6 +15,7 @@ def generate_room_name():
 	word = first + seconond + str(random.randint(0, 9999))
 
 	return word
+
 
 # DELETES EVERYTING FROM REDIS!!!
 def clear_redis_db():

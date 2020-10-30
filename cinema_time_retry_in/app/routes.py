@@ -19,8 +19,18 @@ general = Blueprint('general', __name__)
 @general.route('/', methods=('GET', 'POST'))
 def index():
     print(session['_id'])
+    keys = redis_db.keys()
+    print(keys)
 
-    rooms = redis_db.keys("*")
+    if not keys == []:
+        rooms = []
+        for i in keys:
+            room = json.loads(redis_db.get(i))
+            name = room['room_name']
+            rooms.append((name.encode(), i))
+    else:
+        rooms = keys
+
 
     return render_template("Main.html", rooms=rooms)
 
