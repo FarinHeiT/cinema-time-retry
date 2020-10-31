@@ -78,6 +78,11 @@ def ban_user(data):
     users.remove(target_user_sid)
     room['users'] = users
 
+    # remove Sid from online users
+    users = room['online']
+    users.remove(target_user_sid)
+    room['online'] = users
+
     # saving all above
     redis_db.set(roomname, json.dumps(room))
 
@@ -125,6 +130,5 @@ def new_room_name(data):
     room['room_name'] = new_name
     redis_db.set(room_name, json.dumps(room))
 
-    # changing name in session
     print(f"new room name {new_name}")
 
