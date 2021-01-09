@@ -7,7 +7,7 @@ socket.on('connect', () => {
 socket.on('displaySayHi', () => {
     const state = player.getPlayerState();
     console.log(state)
-    if(state == 2 | state == 5 || state == -1){
+    if(state == 2 || state == 5 || state == -1){
         player.playVideo();
 
     } else {
@@ -28,6 +28,27 @@ document.querySelector('#banUser').addEventListener('click', () => {
 
 document.querySelector('#sayHi').addEventListener('click', () => {
     socket.emit('sayHi', {'room': room_name})
+});
+
+// Chat
+socket.on('connect', function () {
+    var form = $('form').on('submit', function (e) {
+        e.preventDefault()
+        let user_input = encodeURIComponent($('input.message').val());
+        socket.emit('message', {
+            'msg': user_input,
+            'username': 'lolol'
+        });
+
+        // empty the input field
+        $('input.message').val('').focus()
+    })
+})
+
+socket.on("get_message", function (datam) {
+    console.log("got message")
+    console.log("message is defined")
+    $('div.message_box').append('<div class="message_bbl"><p>'+ datam.username + '</p> <p>'+ datam.msg + '</p></div><br/>')
 });
 
 
@@ -75,6 +96,7 @@ function changeBorderColor(playerStatus) {
         document.getElementById('player-yt').style.borderColor = color;
     }
 }
+
 function onPlayerStateChange(event) {
     changeBorderColor(event.data);
 }

@@ -1,6 +1,6 @@
 import json
 import uuid
-from flask import Flask, render_template, Blueprint, url_for, redirect, session, request
+from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape
 from flask_socketio import join_room as socket_join_room
 from flask_socketio import close_room
 
@@ -88,7 +88,7 @@ def ban_user(data):
 
     print('user banned')
 
-
+    
 @socketio.on('create_room')
 def create_room(data):
     # generating random room name
@@ -131,4 +131,12 @@ def new_room_name(data):
     redis_db.set(room_name, json.dumps(room))
 
     print(f"new room name {new_name}")
+
+
+@socketio.on("message")
+def handleMessage(msg):
+    msg['msg'] = str(escape(msg["msg"]))
+    print(str(msg["msg"]))
+    socketio.emit("get_message", msg, broadcast=True)
+
 

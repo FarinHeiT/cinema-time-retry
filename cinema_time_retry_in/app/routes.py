@@ -31,13 +31,11 @@ def index():
     else:
         rooms = keys
 
-
     return render_template("Main.html", rooms=rooms)
 
 
-@general.route('/room/<room_name>')
+@general.route('/room/<room_name>', methods=('GET', 'POST'))
 def room(room_name):
-
     room = json.loads(redis_db.get(room_name))
 
     # If the user is banned - redirect him to index
@@ -59,7 +57,6 @@ def room(room_name):
         # saving all that
         redis_db.set(room_name, json.dumps(room))
 
-
         # data from redis
         link = room['playlist'][0]
         password = room['password']
@@ -68,13 +65,16 @@ def room(room_name):
 
         session['current_room'] = room_name
 
+        form = forms.Message_form()
+
         return render_template('room.html',
                                video_link=link,
                                source='youtube',
                                password=password,
                                room_name=room_name,
                                online=online,
-                               names=names)
+                               names=names,
+                               form=form)
     else:
         return redirect(url_for('general.password_in', room_name=room_name, error=None))
 
@@ -83,7 +83,7 @@ def room(room_name):
 def password_in():
     room_name = request.args.get('room_name')
     error = request.args.get('error')
-    form = forms.password_form()
+    form = forms.Password_form()
 
     if form.validate_on_submit():
         # global room variable for seting add geting
