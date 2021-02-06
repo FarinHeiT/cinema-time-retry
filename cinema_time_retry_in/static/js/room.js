@@ -100,3 +100,9 @@ function changeBorderColor(playerStatus) {
 function onPlayerStateChange(event) {
     changeBorderColor(event.data);
 }
+
+// Instant disconnect on refresh\tab close
+window.onbeforeunload = function() {
+    socket.disconnect()
+    return ''
+}

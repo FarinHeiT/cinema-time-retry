@@ -1,4 +1,6 @@
 import json
+import threading
+import time
 import uuid
 from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape
 from flask_socketio import join_room as socket_join_room
@@ -11,15 +13,36 @@ from flask_socketio import join_room, SocketIO
 
 from .helper_functions import generate_room_name
 
-
 @socketio.on('join_room')
 def join_room(data):
     socket_join_room(data['room_name'])
 
 
+def check_for_deletion(current_room, id):
+    """ Waits for a 5 seconds for user to reconnect and if user fails - deletes the room """
+    time.sleep(5)
+
+    room_name = current_room
+    room = json.loads(redis_db.get(str(room_name)))
+
+    # deleting if room is empty
+    if room['online'] == []:
+        print(f"deleting {room_name}")
+
+        # deleting room from redis
+        redis_db.delete(room_name)
+
+        return
+
+    print('Deletion denied, someone is online.')
+
+    # trnsfer admin to another user when admin leaves
+    if id == room['admin']:
+        room['admin'] = room['online'][0]
+
 @socketio.on('disconnect')
 def online_disconnect():
-    print("disconnect2")
+    print("Someone left, deleting from online users")
 
     # getting room name
     room_name = session['current_room']
@@ -32,27 +55,12 @@ def online_disconnect():
     online.remove(session['_id'])
     room['online'] = online
 
-    # deleting if room is empty
-    if room['online'] == []:
-        print(f"deleting {room_name}")
-
-        # deleting room from socketio
-        close_room(room_name)
-
-        # deleting room from redis
-        redis_db.delete(room_name)
-
-        return
-
-
-
-    # trnsfer admin to another user when admin leaves
-    if session["_id"] == room['admin']:
-        room['admin'] = room['online'][0]
-
-    # saving all this crazy stuff
+    # save the new online data
     redis_db.set(room_name, json.dumps(room))
 
+    # check for a reconnection in 5 seconds
+    threading.Thread(target=check_for_deletion, args=(session["current_room"], session["_id"])).start()
+    print('Room deletion test initialized in 5 seconds...')
 
 @socketio.on("ban")
 def ban_user(data):
