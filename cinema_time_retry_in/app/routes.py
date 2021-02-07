@@ -1,6 +1,6 @@
 import json
 import uuid
-from flask import Flask, render_template, Blueprint, url_for, redirect, session, request
+from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, jsonify
 from flask_socketio import join_room as socket_join_room
 from flask_socketio import close_room
 
@@ -34,21 +34,38 @@ def index():
     return render_template("Main.html", rooms=rooms)
 
 
+def add_online(room_name):
+    """
+    Adds user to the online list
+    Code 200 - successfully added
+    Code 0 - user is already on the list
+    """
+    room = json.loads(redis_db.get(room_name))
+    online = room['online']
+    if session['_id'] not in online:
+        online.append(session['_id'])
+        room['online'] = online
+
+        redis_db.set(room_name, json.dumps(room))
+        return 200
+    return 0
+
+
+@general.route('/room/<room_name>/ping_online')
+def ping_online(room_name):
+    """ Helper route for the frontend to receive pings """
+    return jsonify(add_online(room_name))
+
+
 @general.route('/room/<room_name>', methods=('GET', 'POST'))
 def room(room_name):
+    # Check whether the user is banned or requires admin role
     room = json.loads(redis_db.get(room_name))
-
-    # If the user is banned - redirect him to index
-    if session['_id'] in room['baned']:
-        return redirect(url_for('general.index'))
-
     if session['_id'] in room['users']:
 
-        # adding user in online list
-        online = room['online']
-        if session['_id'] not in online:
-            online.append(session['_id'])
-            room['online'] = online
+        # If the user is banned - redirect him to index
+        if session['_id'] in room['baned']:
+            return redirect(url_for('general.index'))
 
         # giving the creator admin rights
         if session['_id'] == room['creator']:
@@ -56,6 +73,9 @@ def room(room_name):
 
         # saving all that
         redis_db.set(room_name, json.dumps(room))
+
+        # adding the user to online list
+        add_online(room_name)
 
         # data from redis
         link = room['playlist'][0]

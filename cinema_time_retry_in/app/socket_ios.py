@@ -51,12 +51,12 @@ def online_disconnect():
     room = json.loads(redis_db.get(str(room_name)))
 
     online = room['online']
+    if session['_id'] in online:
+        online.remove(session['_id'])
+        room['online'] = online
 
-    online.remove(session['_id'])
-    room['online'] = online
-
-    # save the new online data
-    redis_db.set(room_name, json.dumps(room))
+        # save the new online data
+        redis_db.set(room_name, json.dumps(room))
 
     # check for a reconnection in 5 seconds
     threading.Thread(target=check_for_deletion, args=(session["current_room"], session["_id"])).start()

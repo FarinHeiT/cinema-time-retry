@@ -106,3 +106,10 @@ window.onbeforeunload = function() {
     socket.disconnect()
     return ''
 }
+
+// Send ping_online signal to the server every 10 sec
+setInterval(function() {
+    fetch('/room/' + room_name + '/ping_online')
+        .then(response => response.json())
+        .then(data => console.log('Ping online response: ', data))
+}, 10000)
