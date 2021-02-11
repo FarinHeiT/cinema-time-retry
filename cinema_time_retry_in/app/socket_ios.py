@@ -112,8 +112,8 @@ def create_room(data):
         'baned': [],
         'admin': session['_id'],
         'creator': session['_id'],
-        'room_name': room_name
-
+        'room_name': room_name,
+        'colors': {session['_id'] : "FFFF00"}
 
     }
 

@@ -37,7 +37,9 @@ socket.on('connect', function () {
         let user_input = encodeURIComponent($('input.message').val());
         socket.emit('message', {
             'msg': user_input,
-            'username': 'lolol'
+            'username': name,
+            'color': color,
+            'role': role
         });
 
         // empty the input field
@@ -48,7 +50,7 @@ socket.on('connect', function () {
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
-    $('div.message_box').append('<div class="message_bbl"><p>'+ datam.username + '</p> <p>'+ datam.msg + '</p></div><br/>')
+    $('div.message_box').append('<div class="message_bbl"><p style="color:#'+ datam.color +'">'+ datam.username +'<span>('+datam.role+')</span> </p> <p>'+ datam.msg + '</p></div><br/>')
 });
 
 

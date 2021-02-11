@@ -82,8 +82,16 @@ def room(room_name):
         password = room['password']
         online = room['online']
         names = room['names']
-
+        name = room['names'][session['_id']]
         session['current_room'] = room_name
+        color = room['colors'][session['_id']]
+        role = None
+        if session['_id'] == room['creator']:
+            role = "Creator"
+        elif session['_id'] == room['admin']:
+            role = "Admin"
+        else:
+            role = "User"
 
         form = forms.Message_form()
 
@@ -94,7 +102,10 @@ def room(room_name):
                                room_name=room_name,
                                online=online,
                                names=names,
-                               form=form)
+                               form=form,
+                               name=name,
+                               color=color,
+                               role=role)
     else:
         return redirect(url_for('general.password_in', room_name=room_name, error=None))
 
@@ -128,6 +139,11 @@ def password_in():
             names = room['names']
             names[session['_id']] = form.name.data
             room['names'] = names
+
+            colors = room['colors']
+            colors[session['_id']] = form.color.data
+            room['colors'] = colors
+
             redis_db.set(room_name, json.dumps(room))
 
             return redirect(url_for('general.room', room_name=room_name))
