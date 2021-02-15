@@ -1,4 +1,6 @@
 import json
+import threading
+import time
 import uuid
 from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape
 from flask_socketio import join_room as socket_join_room
@@ -11,15 +13,36 @@ from flask_socketio import join_room, SocketIO
 
 from .helper_functions import generate_room_name
 
-
 @socketio.on('join_room')
 def join_room(data):
     socket_join_room(data['room_name'])
 
 
+def check_for_deletion(current_room, id):
+    """ Waits for a 5 seconds for user to reconnect and if user fails - deletes the room """
+    time.sleep(5)
+
+    room_name = current_room
+    room = json.loads(redis_db.get(str(room_name)))
+
+    # deleting if room is empty
+    if room['online'] == []:
+        print(f"deleting {room_name}")
+
+        # deleting room from redis
+        redis_db.delete(room_name)
+
+        return
+
+    print('Deletion denied, someone is online.')
+
+    # trnsfer admin to another user when admin leaves
+    if id == room['admin']:
+        room['admin'] = room['online'][0]
+
 @socketio.on('disconnect')
 def online_disconnect():
-    print("disconnect2")
+    print("Someone left, deleting from online users")
 
     # getting room name
     room_name = session['current_room']
@@ -28,31 +51,16 @@ def online_disconnect():
     room = json.loads(redis_db.get(str(room_name)))
 
     online = room['online']
+    if session['_id'] in online:
+        online.remove(session['_id'])
+        room['online'] = online
 
-    online.remove(session['_id'])
-    room['online'] = online
+        # save the new online data
+        redis_db.set(room_name, json.dumps(room))
 
-    # deleting if room is empty
-    if room['online'] == []:
-        print(f"deleting {room_name}")
-
-        # deleting room from socketio
-        close_room(room_name)
-
-        # deleting room from redis
-        redis_db.delete(room_name)
-
-        return
-
-
-
-    # trnsfer admin to another user when admin leaves
-    if session["_id"] == room['admin']:
-        room['admin'] = room['online'][0]
-
-    # saving all this crazy stuff
-    redis_db.set(room_name, json.dumps(room))
-
+    # check for a reconnection in 5 seconds
+    threading.Thread(target=check_for_deletion, args=(session["current_room"], session["_id"])).start()
+    print('Room deletion test initialized in 5 seconds...')
 
 @socketio.on("ban")
 def ban_user(data):
@@ -104,8 +112,8 @@ def create_room(data):
         'baned': [],
         'admin': session['_id'],
         'creator': session['_id'],
-        'room_name': room_name
-
+        'room_name': room_name,
+        'colors': {session['_id'] : "FFFF00"}
 
     }
 
@@ -114,10 +122,19 @@ def create_room(data):
     socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)}, room=request.sid)
 
 
-@socketio.on('sayHi')
-def say_hi(data):
+@socketio.on('player_state_handle')
+def player_state_handle(data):
     print(data)
-    socketio.emit('displaySayHi', room=data['room'])
+    player_state = data['action']
+
+    # TODO Check if the request was sent by admin or whether checkbox "all users can modify player state was checked
+
+    if player_state == 'play':
+        socketio.emit('send_unpause', {'current_time': data['current_time'], 'initiator': data['username']}, room=data['room'])
+    elif player_state == 'pause':
+        socketio.emit('send_pause', {'current_time': data['current_time'], 'initiator': data['username']}, room=data['room'])
+    else:
+        raise Exception('Unhandled state detected:', player_state)
 
 @socketio.on('new_room_name')
 def new_room_name(data):

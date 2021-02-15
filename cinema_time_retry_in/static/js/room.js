@@ -1,13 +1,14 @@
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 
 socket.on('connect', () => {
+    console.log("Joining room:", room_name)
     socket.emit('join_room', {'room_name': room_name})
 });
 
 socket.on('displaySayHi', () => {
     const state = player.getPlayerState();
     console.log(state)
-    if(state == 2 || state == 5 || state == -1){
+    if (state == 2 || state == 5 || state == -1) {
         player.playVideo();
 
     } else {
@@ -17,7 +18,7 @@ socket.on('displaySayHi', () => {
 
 document.querySelector('#bn').addEventListener('click', () => {
     const nrn = document.querySelector('#rn').value
-    socket.emit('new_room_name', {'room_name':room_name, 'name' : nrn})
+    socket.emit('new_room_name', {'room_name': room_name, 'name': nrn})
 })
 
 
@@ -26,9 +27,6 @@ document.querySelector('#banUser').addEventListener('click', () => {
     socket.emit('ban', {'user': banUsername})
 });
 
-document.querySelector('#sayHi').addEventListener('click', () => {
-    socket.emit('sayHi', {'room': room_name})
-});
 
 // Chat
 socket.on('connect', function () {
@@ -48,7 +46,7 @@ socket.on('connect', function () {
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
-    $('div.message_box').append('<div class="message_bbl"><p>'+ datam.username + '</p> <p>'+ datam.msg + '</p></div><br/>')
+    $('div.message_box').append('<div class="message_bbl"><p>' + datam.username + '</p> <p>' + datam.msg + '</p></div><br/>')
 });
 
 
@@ -98,5 +96,60 @@ function changeBorderColor(playerStatus) {
 }
 
 function onPlayerStateChange(event) {
+    console.log("NEW STATE", event.data)
     changeBorderColor(event.data);
+    console.log('Mine role', role, "\nNew player state:", event.data)
+    if (role == "Creator") {
+        socket.emit('player_state_handle', {
+            'room': room_name,
+            'action': event.data == 1 ? 'play' : event.data == 2 ? "pause" : event.data,
+            'current_time': player.getCurrentTime(),
+            'username': name
+        })
+    }
+
 }
+
+socket.on('send_unpause', (data) => {
+    console.log('initiator', data['initiator'])
+    if (name != data['initiator']) {
+        player.seekTo(data['current_time'])
+        console.log('seeking')
+        player.playVideo()
+    }
+})
+
+socket.on('send_pause', (data) => {
+    console.log('initiator', data['initiator'])
+    if (name != data['initiator']) {
+        player.pauseVideo()
+        player.seekTo(data['current_time'])
+    }
+})
+
+// TODO Cant locate progressbar because its inside of the iframe. Need to think of alternative
+// let progressbar = document.querySelector(".ytp-progress-bar-container")
+//
+// progressbar.addEventListener('click', () => {
+//     player.pauseVideo()
+//
+//     socket.emit('player_state_handle', {
+//         'room': room_name,
+//         'action': 'pause',
+//         'current_time': player.getCurrentTime(),
+//         'username': name
+//     })
+// })
+
+// Instant disconnect on refresh\tab close
+window.onbeforeunload = function () {
+    socket.disconnect()
+    return ''
+}
+
+// Send ping_online signal to the server every 10 sec
+setInterval(function () {
+    fetch('/room/' + room_name + '/ping_online')
+        .then(response => response.json())
+        .then(data => console.log('Ping online response: ', data))
+}, 10000)
