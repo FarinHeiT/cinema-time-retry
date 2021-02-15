@@ -26,7 +26,6 @@
 </head>
 <body>
 
-<button id="sayHi">Say hi to everyone</button>
 <button type="button" class="btn btn-dark" id="banUser">Ban User</button>
 <input type="text" id="banUsername">
 
@@ -60,6 +59,9 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+
+<!-- This is KOSTIL to bypass browser safery block -->
+<button>UNBLOCK ME</button>
 
 <script>
     let room_name = '{{ room_name }}';

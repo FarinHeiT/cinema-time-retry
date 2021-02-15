@@ -122,10 +122,19 @@ def create_room(data):
     socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)}, room=request.sid)
 
 
-@socketio.on('sayHi')
-def say_hi(data):
+@socketio.on('player_state_handle')
+def player_state_handle(data):
     print(data)
-    socketio.emit('displaySayHi', room=data['room'])
+    player_state = data['action']
+
+    # TODO Check if the request was sent by admin or whether checkbox "all users can modify player state was checked
+
+    if player_state == 'play':
+        socketio.emit('send_unpause', {'current_time': data['current_time'], 'initiator': data['username']}, room=data['room'])
+    elif player_state == 'pause':
+        socketio.emit('send_pause', {'current_time': data['current_time'], 'initiator': data['username']}, room=data['room'])
+    else:
+        raise Exception('Unhandled state detected:', player_state)
 
 @socketio.on('new_room_name')
 def new_room_name(data):
