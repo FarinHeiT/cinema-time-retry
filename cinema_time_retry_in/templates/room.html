@@ -60,6 +60,13 @@
 
 <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 
+{% if role == "Creator" %}
+    <input type="checkbox" id="admin-rules" {% if settings['admin_rules'] %} checked {% endif %}>
+    <label for="admin-rules">
+        Only admim can pause and scroll globally
+    </label>
+{% endif %}
+
 <!-- This is KOSTIL to bypass browser safery block -->
 <button>UNBLOCK ME</button>
 
@@ -68,8 +75,8 @@
     let name = '{{ name }}';
     let color = '{{ color }}';
     let role = '{{ role }}';
+    let settings = '{{ settings }}'
 </script>
-
 
 
 </body>

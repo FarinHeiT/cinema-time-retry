@@ -85,6 +85,7 @@ def room(room_name):
         name = room['names'][session['_id']]
         session['current_room'] = room_name
         color = room['colors'][session['_id']]
+        settings = room['settings']
         role = None
         if session['_id'] == room['creator']:
             role = "Creator"
@@ -105,7 +106,8 @@ def room(room_name):
                                form=form,
                                name=name,
                                color=color,
-                               role=role)
+                               role=role,
+                               settings=settings)
     else:
         return redirect(url_for('general.password_in', room_name=room_name, error=None))
 

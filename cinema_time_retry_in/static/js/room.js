@@ -70,7 +70,6 @@ function onYouTubeIframeAPIReady() {
 
 // Fire on player ready state
 function onPlayerReady(event) {
-    console.info("READY ME")
     document.getElementById('player-yt').style.borderColor = '#FF6D00';
 }
 
@@ -95,11 +94,26 @@ function changeBorderColor(playerStatus) {
     }
 }
 
+window.onload  = function() {
+    let admin_rules = document.querySelector('#admin-rules')
+    if (admin_rules) {
+        admin_rules.addEventListener('click', () => {
+            console.log("Trying to change settings")
+            socket.emit('change_settings', {'parameter': 'admin_rules', 'value': admin_rules.checked, 'room_name': room_name})
+        })
+    }
+}
+
+socket.on('send_new_settings', (data) => {
+    console.log('Got new settings')
+    settings = data
+})
+
 function onPlayerStateChange(event) {
-    console.log("NEW STATE", event.data)
+    console.info(event)
     changeBorderColor(event.data);
     console.log('Mine role', role, "\nNew player state:", event.data)
-    if (role == "Creator") {
+    if (role == "Creator" || !settings['admin_rules']) {
         socket.emit('player_state_handle', {
             'room': room_name,
             'action': event.data == 1 ? 'play' : event.data == 2 ? "pause" : event.data,
@@ -111,7 +125,7 @@ function onPlayerStateChange(event) {
 }
 
 socket.on('send_unpause', (data) => {
-    console.log('initiator', data['initiator'])
+    console.log('initiator', data['initiator'], "\nmine name", name)
     if (name != data['initiator']) {
         player.seekTo(data['current_time'])
         console.log('seeking')
@@ -120,6 +134,7 @@ socket.on('send_unpause', (data) => {
 })
 
 socket.on('send_pause', (data) => {
+    console.log('initiator', data['initiator'], "\nmine name", name)
     console.log('initiator', data['initiator'])
     if (name != data['initiator']) {
         player.pauseVideo()
