@@ -2,7 +2,7 @@ import json
 import threading
 import time
 import uuid
-from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape
+from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape, jsonify
 from flask_socketio import join_room as socket_join_room
 from flask_socketio import close_room
 
@@ -167,6 +167,17 @@ def change_settings(data):
 
     except Exception as e:
         print("Error while changing settigs: ", e)
+
+
+@socketio.on('get_room_info')
+def get_room_info(data):
+    try:
+        print(data)
+        room_name = data['room_name']
+        room = json.loads(redis_db.get(room_name))
+        socketio.emit('send_room_info', {"room_info": room, "timing": data["timing"]}, room=room_name)
+    except Exception as e:
+        print("Error while trying to find room: ", room_name, e)
 
 @socketio.on("message")
 def handleMessage(msg):
