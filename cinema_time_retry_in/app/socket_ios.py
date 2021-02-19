@@ -2,7 +2,7 @@ import json
 import threading
 import time
 import uuid
-from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape
+from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape, jsonify
 from flask_socketio import join_room as socket_join_room
 from flask_socketio import close_room
 
@@ -113,7 +113,10 @@ def create_room(data):
         'admin': session['_id'],
         'creator': session['_id'],
         'room_name': room_name,
-        'colors': {session['_id'] : "FFFF00"}
+        'colors': {session['_id'] : "FFFF00"},
+        'settings': {
+            'admin_rules': True
+        }
 
     }
 
@@ -149,6 +152,32 @@ def new_room_name(data):
 
     print(f"new room name {new_name}")
 
+
+@socketio.on('change_settings')
+def change_settings(data):
+    room_name = data['room_name']
+    room = json.loads(redis_db.get(room_name))
+
+    try:
+        room['settings'][data['parameter']] = data['value']
+        redis_db.set(room_name, json.dumps(room))
+        print(f'Successfully changed parameter "{data["parameter"]}" to "{data["value"]}"')
+
+        socketio.emit("send_new_settings", room['settings'])
+
+    except Exception as e:
+        print("Error while changing settigs: ", e)
+
+
+@socketio.on('get_room_info')
+def get_room_info(data):
+    try:
+        print(data)
+        room_name = data['room_name']
+        room = json.loads(redis_db.get(room_name))
+        socketio.emit('send_room_info', {"room_info": room, "timing": data["timing"]}, room=room_name)
+    except Exception as e:
+        print("Error while trying to find room: ", room_name, e)
 
 @socketio.on("message")
 def handleMessage(msg):

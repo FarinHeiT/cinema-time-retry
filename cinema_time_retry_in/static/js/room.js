@@ -1,5 +1,5 @@
 let socket = io.connect('http://' + document.domain + ':' + location.port);
-
+let user_timings = {}
 socket.on('connect', () => {
     console.log("Joining room:", room_name)
     socket.emit('join_room', {'room_name': room_name})
@@ -70,7 +70,6 @@ function onYouTubeIframeAPIReady() {
 
 // Fire on player ready state
 function onPlayerReady(event) {
-    console.info("READY ME")
     document.getElementById('player-yt').style.borderColor = '#FF6D00';
 }
 
@@ -95,11 +94,26 @@ function changeBorderColor(playerStatus) {
     }
 }
 
+window.onload  = function() {
+    let admin_rules = document.querySelector('#admin-rules')
+    if (admin_rules) {
+        admin_rules.addEventListener('click', () => {
+            console.log("Trying to change settings")
+            socket.emit('change_settings', {'parameter': 'admin_rules', 'value': admin_rules.checked, 'room_name': room_name})
+        })
+    }
+}
+
+socket.on('send_new_settings', (data) => {
+    console.log('Got new settings')
+    settings = data
+})
+
 function onPlayerStateChange(event) {
-    console.log("NEW STATE", event.data)
+    console.info(event)
     changeBorderColor(event.data);
     console.log('Mine role', role, "\nNew player state:", event.data)
-    if (role == "Creator") {
+    if (role == "Creator" || !settings['admin_rules']) {
         socket.emit('player_state_handle', {
             'room': room_name,
             'action': event.data == 1 ? 'play' : event.data == 2 ? "pause" : event.data,
@@ -111,7 +125,7 @@ function onPlayerStateChange(event) {
 }
 
 socket.on('send_unpause', (data) => {
-    console.log('initiator', data['initiator'])
+    console.log('initiator', data['initiator'], "\nmine name", name)
     if (name != data['initiator']) {
         player.seekTo(data['current_time'])
         console.log('seeking')
@@ -120,6 +134,7 @@ socket.on('send_unpause', (data) => {
 })
 
 socket.on('send_pause', (data) => {
+    console.log('initiator', data['initiator'], "\nmine name", name)
     console.log('initiator', data['initiator'])
     if (name != data['initiator']) {
         player.pauseVideo()
@@ -141,6 +156,23 @@ socket.on('send_pause', (data) => {
 //     })
 // })
 
+setInterval(function () {
+    socket.emit('get_room_info', {"room_name": room_name, "timing": [name, player.getCurrentTime()]})
+}, 1000)
+
+socket.on('send_room_info', (data) => {
+    [timing_username, timing] = data['timing']
+    user_timings[timing_username] = timing
+
+    let online_user_list = document.querySelector('#online-users')
+    online_user_list.innerHTML = ""
+    data['room_info']['online'].forEach((user_id) => {
+        let username = data['room_info']['names'][user_id]
+        online_user_list.innerHTML += '<li>' + username + '\n' + toHHMMSS(user_timings[username]) +'</li>'
+    })
+
+})
+
 // Instant disconnect on refresh\tab close
 window.onbeforeunload = function () {
     socket.disconnect()
@@ -153,3 +185,15 @@ setInterval(function () {
         .then(response => response.json())
         .then(data => console.log('Ping online response: ', data))
 }, 10000)
+
+let toHHMMSS = (secs) => {
+    let sec_num = parseInt(secs, 10)
+    let hours   = Math.floor(sec_num / 3600)
+    let minutes = Math.floor(sec_num / 60) % 60
+    let seconds = sec_num % 60
+
+    return [hours,minutes,seconds]
+        .map(v => v < 10 ? "0" + v : v)
+        .filter((v,i) => v !== "00" || i > 0)
+        .join(":")
+}
