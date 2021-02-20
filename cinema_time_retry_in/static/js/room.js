@@ -109,34 +109,43 @@ socket.on('send_new_settings', (data) => {
     settings = data
 })
 
+let block = false
+
+
 function onPlayerStateChange(event) {
-    console.info(event)
     changeBorderColor(event.data);
     console.log('Mine role', role, "\nNew player state:", event.data)
-    if (role == "Creator" || !settings['admin_rules']) {
-        socket.emit('player_state_handle', {
-            'room': room_name,
-            'action': event.data == 1 ? 'play' : event.data == 2 ? "pause" : event.data,
-            'current_time': player.getCurrentTime(),
-            'username': name
-        })
+
+    if (event.data == 1 || event.data == 2) {
+
+        if ((role == "Creator" || !settings['admin_rules']) && block == false) {
+            socket.emit('player_state_handle', {
+                'room': room_name,
+                'action': event.data == 1 ? 'play' : event.data == 2 ? "pause" : event.data,
+                'current_time': player.getCurrentTime(),
+                'username': name
+            })
+        }
+        block = false
+    } else {
+        console.log("SKIPPED", block)
     }
+
 
 }
 
 socket.on('send_unpause', (data) => {
     console.log('initiator', data['initiator'], "\nmine name", name)
     if (name != data['initiator']) {
+        block = true
         player.seekTo(data['current_time'])
-        console.log('seeking')
         player.playVideo()
     }
 })
 
 socket.on('send_pause', (data) => {
-    console.log('initiator', data['initiator'], "\nmine name", name)
-    console.log('initiator', data['initiator'])
     if (name != data['initiator']) {
+        block = true
         player.pauseVideo()
         player.seekTo(data['current_time'])
     }
