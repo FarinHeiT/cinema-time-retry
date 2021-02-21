@@ -8,17 +8,6 @@ socket.on('connect', () => {
     socket.emit('join_room', {'room_name': room_name})
 });
 
-socket.on('displaySayHi', () => {
-    const state = player.getPlayerState();
-    console.log(state)
-    if (state == 2 || state == 5 || state == -1) {
-        player.playVideo();
-
-    } else {
-        player.pauseVideo();
-    }
-});
-
 document.querySelector('#bn').addEventListener('click', () => {
     const nrn = document.querySelector('#rn').value
     socket.emit('new_room_name', {'room_name': room_name, 'name': nrn})
@@ -128,6 +117,10 @@ function onPlayerStateChange(event) {
     changeBorderColor(event.data)
     let sync_checkbox = document.querySelector("#sync")
 
+    // Sync new user with admin
+    if (event.data == -1) {
+        player.seekTo(user_timings[admin_name])
+    }
 
     // Only send if the state is 1 || 2 and synchronization if enabled
     if ((event.data == 1 || event.data == 2) && sync_checkbox.checked) {

@@ -95,7 +95,6 @@ def room(room_name):
             role = "User"
 
         form = forms.Message_form()
-
         return render_template('room.html',
                                video_link=link,
                                source='youtube',

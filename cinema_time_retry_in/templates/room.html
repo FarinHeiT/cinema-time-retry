@@ -86,7 +86,7 @@
     let name = '{{ name }}';
     let color = '{{ color }}';
     let role = '{{ role }}';
-    let settings = '{{ settings }}'
+    let settings = JSON.parse('{{ settings | tojson }}')
 </script>
 
 
