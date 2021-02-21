@@ -119,7 +119,12 @@ function onPlayerStateChange(event) {
 
     // Sync new user with admin
     if (event.data == -1) {
-        player.seekTo(user_timings[admin_name])
+        if (role == "Creator") {
+            player.seekTo(user_timings[Object.keys(user_timings)[0]])
+        } else {
+            player.seekTo(user_timings[admin_name])
+        }
+        block = true
     }
 
     // Only send if the state is 1 || 2 and synchronization if enabled
