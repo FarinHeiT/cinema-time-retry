@@ -64,12 +64,19 @@
 
 <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 
+<h4>Admin settings</h4>
 {% if role == "Creator" %}
     <input type="checkbox" id="admin-rules" {% if settings['admin_rules'] %} checked {% endif %}>
     <label for="admin-rules">
         Only admim can pause and scroll globally
     </label>
 {% endif %}
+
+<h4>General settings</h4>
+<input type="checkbox" id="sync" checked>
+<label for="sync">
+    Synchronization
+</label>
 
 <!-- This is KOSTIL to bypass browser safery block -->
 <button>UNBLOCK ME</button>

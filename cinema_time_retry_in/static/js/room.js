@@ -1,5 +1,8 @@
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 let user_timings = {}
+let sync = true
+let admin_name = ""
+
 socket.on('connect', () => {
     console.log("Joining room:", room_name)
     socket.emit('join_room', {'room_name': room_name})
@@ -95,17 +98,26 @@ function changeBorderColor(playerStatus) {
 }
 
 window.onload  = function() {
+
     let admin_rules = document.querySelector('#admin-rules')
     if (admin_rules) {
         admin_rules.addEventListener('click', () => {
-            console.log("Trying to change settings")
             socket.emit('change_settings', {'parameter': 'admin_rules', 'value': admin_rules.checked, 'room_name': room_name})
         })
     }
+
+    let sync_checkbox = document.querySelector("#sync")
+    sync_checkbox.addEventListener('click', () => {
+        if (sync_checkbox.checked) {
+            sync = true
+            player.seekTo(user_timings[admin_name])
+        } else {
+            sync = false
+        }
+    })
 }
 
 socket.on('send_new_settings', (data) => {
-    console.log('Got new settings')
     settings = data
 })
 
@@ -113,11 +125,14 @@ let block = false
 
 
 function onPlayerStateChange(event) {
-    changeBorderColor(event.data);
-    console.log('Mine role', role, "\nNew player state:", event.data)
+    changeBorderColor(event.data)
+    let sync_checkbox = document.querySelector("#sync")
 
-    if (event.data == 1 || event.data == 2) {
 
+    // Only send if the state is 1 || 2 and synchronization if enabled
+    if ((event.data == 1 || event.data == 2) && sync_checkbox.checked) {
+
+        // Send if the user is admin or if correspondent settings are set
         if ((role == "Creator" || !settings['admin_rules']) && block == false) {
             socket.emit('player_state_handle', {
                 'room': room_name,
@@ -127,16 +142,13 @@ function onPlayerStateChange(event) {
             })
         }
         block = false
-    } else {
-        console.log("SKIPPED", block)
     }
-
-
 }
 
 socket.on('send_unpause', (data) => {
-    console.log('initiator', data['initiator'], "\nmine name", name)
-    if (name != data['initiator']) {
+    let sync_checkbox = document.querySelector("#sync")
+
+    if (name != data['initiator'] && sync_checkbox.checked) {
         block = true
         player.seekTo(data['current_time'])
         player.playVideo()
@@ -144,7 +156,9 @@ socket.on('send_unpause', (data) => {
 })
 
 socket.on('send_pause', (data) => {
-    if (name != data['initiator']) {
+    let sync_checkbox = document.querySelector("#sync")
+
+    if (name != data['initiator'] && sync_checkbox.checked) {
         block = true
         player.pauseVideo()
         player.seekTo(data['current_time'])
@@ -177,9 +191,10 @@ socket.on('send_room_info', (data) => {
     online_user_list.innerHTML = ""
     data['room_info']['online'].forEach((user_id) => {
         let username = data['room_info']['names'][user_id]
-        online_user_list.innerHTML += '<li>' + username + '\n' + toHHMMSS(user_timings[username]) +'</li>'
+        online_user_list.innerHTML += '<li>' + username + toHHMMSS(user_timings[username]) +'</li>'
     })
 
+    admin_name = data['room_info']['names'][data['room_info']['admin']]
 })
 
 // Instant disconnect on refresh\tab close
