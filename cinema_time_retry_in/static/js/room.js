@@ -35,10 +35,14 @@ socket.on('connect', function () {
     })
 })
 
+let message_sound = new Audio("https://freesound.org/data/previews/364/364658_6687700-lq.mp3")
+console.log(message_sound)
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
     $('div.message_box').append('<div class="message_bbl"><p>' + datam.username + '</p> <p>' + datam.msg + '</p></div><br/>')
+    message_sound.currentTime = 0
+    message_sound.play()
 });
 
 
@@ -111,6 +115,7 @@ socket.on('send_new_settings', (data) => {
 })
 
 let block = false
+
 
 
 function onPlayerStateChange(event) {
