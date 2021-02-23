@@ -117,6 +117,7 @@ def create_room(data):
         'settings': {
             'admin_rules': True
         }
+    #     TODO Current video propery, it should change on video ENDED state or on manual video start
 
     }
 
@@ -127,7 +128,6 @@ def create_room(data):
 
 @socketio.on('player_state_handle')
 def player_state_handle(data):
-    print(data)
     player_state = data['action']
 
     # TODO Check if the request was sent by admin or whether checkbox "all users can modify player state was checked
@@ -138,6 +138,43 @@ def player_state_handle(data):
         socketio.emit('send_pause', {'current_time': data['current_time'], 'initiator': data['username']}, room=data['room'])
     else:
         raise Exception('Unhandled state detected:', player_state)
+
+
+@socketio.on('playlist_handle')
+def playlist_handle(data):
+    room_name = data['room_name']
+    room = json.loads(redis_db.get(room_name))
+    action = data['action']
+
+    try:
+        # TODO Server-side validation of the provided link
+        video_id = data['link'].split('watch?v=')[-1]
+
+        if action == 'clear_playlist':
+            room['playlist'] = []
+            response = "Successfully cleared the playlist"
+        elif action == 'add_video':
+            if video_id not in room['playlist']:
+                room['playlist'].append(video_id)
+                print(f'Successfully added video to playlist')
+                response = "Successfully added video"
+            else:
+                response = "This video is already in playlist"
+        elif action == 'remove_video':
+            if video_id in room['playlist']:
+                room['playlist'].remove(video_id)
+                response = "Successfully removed video"
+            else:
+                response = "There is no such video in playlist"
+
+
+        redis_db.set(room_name, json.dumps(room))
+        socketio.emit('send_playlist_handled', {'response': response}, room=data['room_name'])
+
+    except Exception as e:
+        print(e)
+
+
 
 @socketio.on('new_room_name')
 def new_room_name(data):

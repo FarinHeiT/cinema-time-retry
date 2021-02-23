@@ -2,7 +2,23 @@ let socket = io.connect('http://' + document.domain + ':' + location.port);
 let user_timings = {}
 let sync = true
 let admin_name = ""
+let block = false
+let playlist = []
 
+// Helper functions
+let toHHMMSS = (secs) => {
+    let sec_num = parseInt(secs, 10)
+    let hours   = Math.floor(sec_num / 3600)
+    let minutes = Math.floor(sec_num / 60) % 60
+    let seconds = sec_num % 60
+
+    return [hours,minutes,seconds]
+        .map(v => v < 10 ? "0" + v : v)
+        .filter((v,i) => v !== "00" || i > 0)
+        .join(":")
+}
+
+// Socketio handlers
 socket.on('connect', () => {
     console.log("Joining room:", room_name)
     socket.emit('join_room', {'room_name': room_name})
@@ -67,6 +83,18 @@ function onYouTubeIframeAPIReady() {
 // Fire on player ready state
 function onPlayerReady(event) {
     document.getElementById('player-yt').style.borderColor = '#FF6D00';
+
+    // 1 sec dalay to retrieve playlist data
+    setTimeout(() => {
+        // Display playlist on page load
+        let playlist_list = document.querySelector('#playlist')
+        playlist_list.innerHTML = ""
+        playlist.forEach((video_id) => {
+            console.log(video_id)
+            playlist_list.innerHTML += '<li>' + video_id + '</li>'
+        })
+    }, 1000)
+
 }
 
 // Change border color corresponding to the player state
@@ -90,6 +118,7 @@ function changeBorderColor(playerStatus) {
     }
 }
 
+// Listeners to add after page load
 window.onload  = function() {
 
     let admin_rules = document.querySelector('#admin-rules')
@@ -108,14 +137,35 @@ window.onload  = function() {
             sync = false
         }
     })
+
+    let add_to_playlist = document.querySelector('#add_to_playlist')
+    add_to_playlist.addEventListener('click', () => {
+        // TODO CLient side validation for the link
+        let link = document.querySelector('#playlist_input').value
+        socket.emit('playlist_handle', {'action': 'add_video', 'link': link, 'room_name': room_name})
+
+    })
+
+    // TODO Clear playlist button
+    // TODO Deletion icon near each video
+    // TODO Display video titles instead of video_id
+    // TODO Drag&Drop playlist items
+    // TODO Play icon near each video
+    // TODO Checkbox for admin "delete video from playlist on ENDED event"
 }
 
 socket.on('send_new_settings', (data) => {
     settings = data
 })
 
-let block = false
-
+socket.on('send_playlist_handled', (data) => {
+    console.log('Playlist response: ', data['response'])
+    let playlist_list = document.querySelector('#playlist')
+    playlist_list.innerHTML = ""
+    playlist.forEach((video_id) => {
+        playlist_list.innerHTML += '<li>' + video_id + '</li>'
+    })
+})
 
 
 function onPlayerStateChange(event) {
@@ -190,6 +240,7 @@ socket.on('send_room_info', (data) => {
     [timing_username, timing] = data['timing']
     user_timings[timing_username] = timing
 
+    // Handle online users list
     let online_user_list = document.querySelector('#online-users')
     online_user_list.innerHTML = ""
     data['room_info']['online'].forEach((user_id) => {
@@ -197,8 +248,12 @@ socket.on('send_room_info', (data) => {
         online_user_list.innerHTML += '<li>' + username + toHHMMSS(user_timings[username]) +'</li>'
     })
 
+    // Keep track of actual admin (as he can change)
     admin_name = data['room_info']['names'][data['room_info']['admin']]
+
+    playlist = data['room_info']['playlist']
 })
+
 
 // Instant disconnect on refresh\tab close
 window.onbeforeunload = function () {
@@ -212,15 +267,3 @@ setInterval(function () {
         .then(response => response.json())
         .then(data => console.log('Ping online response: ', data))
 }, 10000)
-
-let toHHMMSS = (secs) => {
-    let sec_num = parseInt(secs, 10)
-    let hours   = Math.floor(sec_num / 3600)
-    let minutes = Math.floor(sec_num / 60) % 60
-    let seconds = sec_num % 60
-
-    return [hours,minutes,seconds]
-        .map(v => v < 10 ? "0" + v : v)
-        .filter((v,i) => v !== "00" || i > 0)
-        .join(":")
-}
