@@ -116,8 +116,8 @@ def create_room(data):
         'colors': {session['_id'] : "FFFF00"},
         'settings': {
             'admin_rules': True
-        }
-    #     TODO Current video propery, it should change on video ENDED state or on manual video start
+        },
+        'current_video_index': 0
 
     }
 
@@ -169,11 +169,21 @@ def playlist_handle(data):
 
 
         redis_db.set(room_name, json.dumps(room))
-        socketio.emit('send_playlist_handled', {'response': response}, room=data['room_name'])
+        socketio.emit('send_playlist_handled', {'response': response, 'playlist': room['playlist']}, room=data['room_name'])
 
     except Exception as e:
         print(e)
 
+
+@socketio.on('change_video')
+def change_video(data):
+    room_name = data['room_name']
+    room = json.loads(redis_db.get(room_name))
+    room['current_video_index'] = data['next_video_index']
+    redis_db.set(room_name, json.dumps(room))
+    print(f"Current Video updated for room: {room_name}")
+    print(data)
+    socketio.emit('send_change_video', {'current_video_index': data['next_video_index']}, room=data['room_name'])
 
 
 @socketio.on('new_room_name')

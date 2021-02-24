@@ -89,11 +89,13 @@
 </ol>
 
 <script>
-    let room_name = '{{ room_name }}';
-    let name = '{{ name }}';
-    let color = '{{ color }}';
-    let role = '{{ role }}';
-    let settings = JSON.parse('{{ settings | tojson }}')
+        let room_name = '{{ room_name }}'
+        let name = '{{ name }}'
+        let color = '{{ color }}'
+        let role = '{{ role }}'
+        let settings = {{ settings | tojson }}
+        let playlist = {{ playlist | safe }}
+        let current_video_index = {{ current_video_index  }}
 </script>
 
 

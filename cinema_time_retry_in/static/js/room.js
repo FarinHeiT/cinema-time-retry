@@ -3,19 +3,36 @@ let user_timings = {}
 let sync = true
 let admin_name = ""
 let block = false
-let playlist = []
 
 // Helper functions
 let toHHMMSS = (secs) => {
     let sec_num = parseInt(secs, 10)
-    let hours   = Math.floor(sec_num / 3600)
+    let hours = Math.floor(sec_num / 3600)
     let minutes = Math.floor(sec_num / 60) % 60
     let seconds = sec_num % 60
 
-    return [hours,minutes,seconds]
+    return [hours, minutes, seconds]
         .map(v => v < 10 ? "0" + v : v)
-        .filter((v,i) => v !== "00" || i > 0)
+        .filter((v, i) => v !== "00" || i > 0)
         .join(":")
+}
+
+function setup_playlist_listeners() {
+    // Play listener
+    document.querySelectorAll('#play-video').forEach((video) => {
+        video.addEventListener('click', (event) => {
+            let next_video_index = parseInt(event.target.dataset.index)
+            socket.emit('change_video', {'next_video_index': next_video_index, 'room_name': room_name})
+        })
+    })
+
+    // Remove listener
+    document.querySelectorAll('#remove-video').forEach((video) => {
+        video.addEventListener('click', (event) => {
+            let remove_video_id = parseInt(event.target.dataset.index)
+            socket.emit('playlist_handle', {'action': 'remove_video', 'link': playlist[remove_video_id], 'room_name': room_name})
+        })
+    })
 }
 
 // Socketio handlers
@@ -52,7 +69,6 @@ socket.on('connect', function () {
 })
 
 let message_sound = new Audio("https://freesound.org/data/previews/364/364658_6687700-lq.mp3")
-console.log(message_sound)
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
@@ -84,17 +100,16 @@ function onYouTubeIframeAPIReady() {
 function onPlayerReady(event) {
     document.getElementById('player-yt').style.borderColor = '#FF6D00';
 
-    // 1 sec dalay to retrieve playlist data
-    setTimeout(() => {
-        // Display playlist on page load
-        let playlist_list = document.querySelector('#playlist')
-        playlist_list.innerHTML = ""
-        playlist.forEach((video_id) => {
-            console.log(video_id)
-            playlist_list.innerHTML += '<li>' + video_id + '</li>'
-        })
-    }, 1000)
+    // Display playlist on page load
+    let playlist_list = document.querySelector('#playlist')
+    playlist_list.innerHTML = ""
+    playlist.forEach((video_id, index) => {
+        playlist_list.innerHTML += `<li>${video_id}</li><span id="play-video" data-index="${index}">Play</span> <span id="remove-video" data-index="${index}">Remove</span>`
 
+    })
+
+    // TODO Option "only admin can start new video before the end of the previous\remove videos from  playlist
+    setup_playlist_listeners()
 }
 
 // Change border color corresponding to the player state
@@ -119,12 +134,16 @@ function changeBorderColor(playerStatus) {
 }
 
 // Listeners to add after page load
-window.onload  = function() {
+window.onload = function () {
 
     let admin_rules = document.querySelector('#admin-rules')
     if (admin_rules) {
         admin_rules.addEventListener('click', () => {
-            socket.emit('change_settings', {'parameter': 'admin_rules', 'value': admin_rules.checked, 'room_name': room_name})
+            socket.emit('change_settings', {
+                'parameter': 'admin_rules',
+                'value': admin_rules.checked,
+                'room_name': room_name
+            })
         })
     }
 
@@ -147,10 +166,8 @@ window.onload  = function() {
     })
 
     // TODO Clear playlist button
-    // TODO Deletion icon near each video
     // TODO Display video titles instead of video_id
     // TODO Drag&Drop playlist items
-    // TODO Play icon near each video
     // TODO Checkbox for admin "delete video from playlist on ENDED event"
 }
 
@@ -159,12 +176,22 @@ socket.on('send_new_settings', (data) => {
 })
 
 socket.on('send_playlist_handled', (data) => {
+    playlist = data['playlist']
     console.log('Playlist response: ', data['response'])
     let playlist_list = document.querySelector('#playlist')
     playlist_list.innerHTML = ""
-    playlist.forEach((video_id) => {
-        playlist_list.innerHTML += '<li>' + video_id + '</li>'
+
+    data['playlist'].forEach((video_id, index) => {
+        playlist_list.innerHTML += `<li>${video_id}</li><span id="play-video" data-index="${index}">Play</span> <span id="remove-video" data-index="${index}">Remove</span>`
     })
+
+    // Set Up  listeners again, because the previous ones were destroyed during playlist refresh
+    setup_playlist_listeners()
+})
+
+socket.on('send_change_video', (data) => {
+    current_video_index = data['current_video_index']
+    player.loadVideoById(playlist[current_video_index])
 })
 
 
@@ -172,7 +199,7 @@ function onPlayerStateChange(event) {
     changeBorderColor(event.data)
     let sync_checkbox = document.querySelector("#sync")
 
-    // Sync new user with admin
+    // Sync new user with admin (unstarted state)
     if (event.data == -1) {
         if (role == "Creator") {
             player.seekTo(user_timings[Object.keys(user_timings)[0]])
@@ -180,6 +207,11 @@ function onPlayerStateChange(event) {
             player.seekTo(user_timings[admin_name])
         }
         block = true
+    }
+
+    // Change current_video on ENDED event
+    if (event.data == 0) {
+        socket.emit('change_video', {'next_video_index': current_video_index + 1, 'room_name': room_name})
     }
 
     // Only send if the state is 1 || 2 and synchronization if enabled
@@ -245,13 +277,12 @@ socket.on('send_room_info', (data) => {
     online_user_list.innerHTML = ""
     data['room_info']['online'].forEach((user_id) => {
         let username = data['room_info']['names'][user_id]
-        online_user_list.innerHTML += '<li>' + username + toHHMMSS(user_timings[username]) +'</li>'
+        online_user_list.innerHTML += '<li>' + username + toHHMMSS(user_timings[username]) + '</li>'
     })
 
     // Keep track of actual admin (as he can change)
     admin_name = data['room_info']['names'][data['room_info']['admin']]
 
-    playlist = data['room_info']['playlist']
 })
 
 

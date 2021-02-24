@@ -78,7 +78,7 @@ def room(room_name):
         add_online(room_name)
 
         # data from redis
-        link = room['playlist'][0]
+        link = room['playlist'][room['current_video_index']]
         password = room['password']
         online = room['online']
         names = room['names']
@@ -106,7 +106,9 @@ def room(room_name):
                                name=name,
                                color=color,
                                role=role,
-                               settings=settings)
+                               settings=settings,
+                               current_video_index=room['current_video_index'],
+                               playlist=room['playlist'])
     else:
         return redirect(url_for('general.password_in', room_name=room_name, error=None))
 
