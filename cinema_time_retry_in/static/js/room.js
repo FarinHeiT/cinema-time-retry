@@ -60,7 +60,9 @@ socket.on('connect', function () {
         let user_input = encodeURIComponent($('input.message').val());
         socket.emit('message', {
             'msg': user_input,
-            'username': 'lolol'
+            'username': name,
+            'color': color,
+            'role': role
         });
 
         // empty the input field
@@ -72,9 +74,12 @@ let message_sound = new Audio("https://freesound.org/data/previews/364/364658_66
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
-    $('div.message_box').append('<div class="message_bbl"><p>' + datam.username + '</p> <p>' + datam.msg + '</p></div><br/>')
-    message_sound.currentTime = 0
-    message_sound.play()
+    $('div.message_box').append('<div class="message_bbl"><p style="color:#'+ datam.color +'">'+ datam.username +'<span>('+datam.role+')</span> </p> <p>'+ datam.msg + '</p></div><br/>')
+    let sound_checkbox = document.getElementById("message_sound")
+    if (sound_checkbox.checked){
+        message_sound.currentTime = 0
+        message_sound.play()
+    }
 });
 
 
@@ -200,14 +205,14 @@ function onPlayerStateChange(event) {
     let sync_checkbox = document.querySelector("#sync")
 
     // Sync new user with admin (unstarted state)
-    if (event.data == -1) {
-        if (role == "Creator") {
-            player.seekTo(user_timings[Object.keys(user_timings)[0]])
-        } else {
-            player.seekTo(user_timings[admin_name])
-        }
-        block = true
-    }
+    // if (event.data == -1) {
+    //     if (role == "Creator") {
+    //         player.seekTo(user_timings[Object.keys(user_timings)[0]])
+    //     } else {
+    //         player.seekTo(user_timings[admin_name])
+    //     }
+    //     block = true
+    // }
 
     // Change current_video on ENDED event
     if (event.data == 0) {
