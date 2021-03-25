@@ -1,6 +1,8 @@
 import random
 import redis
 import json
+import requests
+from bs4 import BeautifulSoup as BS
 
 
 def generate_room_name():
@@ -24,3 +26,9 @@ def clear_redis_db():
 
 	for i in redis_db.scan_iter():
 		redis_db.delete(i)
+
+
+def get_youtube_title(url):
+	web_url = requests.get(url)
+	html = BS(web_url.content, 'html.parser')
+	print(html.title.get_text())

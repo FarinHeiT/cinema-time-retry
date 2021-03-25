@@ -104,11 +104,11 @@ def create_room(data):
 
     # main room settings
     room = {
-        'playlist': [data['videoLink']],
-        'password': data['password'],
+        'playlist': [escape(data['videoLink'])],
+        'password': escape(data['password']),
         'users': [session['_id']],
         'online': [],
-        'names': {session['_id']: data['Name']},
+        'names': {session['_id']: escape(data['Name'])},
         'baned': [],
         'admin': session['_id'],
         'creator': session['_id'],
@@ -155,7 +155,7 @@ def playlist_handle(data):
             response = "Successfully cleared the playlist"
         elif action == 'add_video':
             if video_id not in room['playlist']:
-                room['playlist'].append(video_id)
+                room['playlist'].append(escape(video_id))
                 print(f'Successfully added video to playlist')
                 response = "Successfully added video"
             else:
@@ -190,7 +190,7 @@ def change_video(data):
 def new_room_name(data):
     # getting all data we need
     room_name = data['room_name']
-    new_name = data['name']
+    new_name = escape(data['name'])
     room = json.loads(redis_db.get(room_name))
 
     # changing name in radis
