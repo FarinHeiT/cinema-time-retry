@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+            integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
+            crossorigin="anonymous"></script>
+
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/css/halfmoon-variables.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/js/halfmoon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    {% block head %}
+    {% endblock %}
+</head>
+<body class="dark-mode">
+    <button class="btn btn-primary" type="button" onclick="toogleDarkmode()">Click me!</button>
+
+    <script type="text/javascript">
+
+    // Dark mode toggle demo
+    function toogleDarkmode() {
+        halfmoon.toggleDarkMode();
+    }
+</script>
+{% block body %}
+    {% endblock %}
+</body>
+
+{% block js %}
+{% endblock %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</html>

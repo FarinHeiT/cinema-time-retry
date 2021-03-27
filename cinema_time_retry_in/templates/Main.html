@@ -1,30 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
-            integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
-            crossorigin="anonymous"></script>
-    <!-- CSS only -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+{% extends 'base.html' %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+<!-- DataTables -->
+{% block head %}
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/table.css') }}">
+{% endblock %}
 
-    <!-- JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
-<body>
+{% block body %}
+
     <div class="container mt-5">
 
         <div class="input-group mb-3">
@@ -40,21 +24,55 @@
         </div>
 
         <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
+
+        <table id="example" class="display stripe wrap" style="width:100%">
+            <thead>
+            <tr>
+                <th>Room Name</th>
+                <th>Current Video</th>
+                <th>Online Users</th>
+                <th>Creator</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>First room</td>
+                <td>;skadfjklsadfjkl;asdjklfasdjklf;</td>
+                <td>5</td>
+                <td>biba</td>
+            </tr>
+            <tr>
+                <td>Airst room</td>
+                <td>;skadfjklsadfjkl;asdjklfasdjklf;</td>
+                <td>5</td>
+                <td>biba</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
-<div class="container">
+    <div class="container">
 
-    <ul class="list-group">
-        {% for name, link in rooms %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="room/{{ link.decode() }}">{{ name.decode() }}</a>
-            </li>
-        {% endfor %}
+        <ul class="list-group">
+            {% for name, link in rooms %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="room/{{ link.decode() }}">{{ name.decode() }}</a>
+                </li>
+            {% endfor %}
 
-    </ul>
+        </ul>
 
-</div>
-</body>
+    </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}
 
-</html>
+{% block js %}
+    <script>
+        $(document).ready(function() {
+
+            let table = $('#example').DataTable({
+                "bLengthChange": false,
+                "pagingType": "simple"
+            });
+        } );
+    </script>
+{% endblock %}

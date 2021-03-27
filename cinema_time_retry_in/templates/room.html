@@ -1,105 +1,78 @@
 {% import "videoSourceMacros.html" as videoMacros %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
-            integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
-            crossorigin="anonymous"></script>
-    <!-- CSS only -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/room.css') }}">
+{% block body %}
+    <button type="button" class="btn btn-dark" id="banUser">Ban User</button>
+    <input type="text" id="banUsername">
 
-    <!-- JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-            crossorigin="anonymous"></script>
-</head>
-<body>
+    {% if source == "youtube" %}
+    {{ videoMacros.youtube(video_link) }}
+    {% endif %}
 
-<button type="button" class="btn btn-dark" id="banUser">Ban User</button>
-<input type="text" id="banUsername">
+    {% for i in online %}
+        <p>{{ names[i] }}</p>
+    {% endfor %}
+    <h3>Online users</h3>
+    <ul id="online-users">
 
-{% if source == "youtube" %}
-{{ videoMacros.youtube(video_link) }}
-{% endif %}
+    </ul>
 
-{% for i in online %}
-    <p>{{ names[i] }}</p>
-{% endfor %}
-<h3>Online users</h3>
-<ul id="online-users">
-
-</ul>
-
-<input type="text" id="rn">
-<button id="bn">change</button>
+    <input type="text" id="rn">
+    <button id="bn">change</button>
 
 
-<input type="checkbox" id="side-checkbox"/>
-<div class="side-panel">
-    <label class="side-button-2" for="side-checkbox">+</label>
-    <div class="side-title">Выдвижная панель:</div>
-    <div class="message_box"></div>
-    <form action="" method="POST">
-        {{ form.button() }}
-        {{ form.box(class="message") }}
-    </form>
-    <label for="chat_sound">Chat Sound On/Off</label>
-    <input type="checkbox" id="message_sound" name="chat_sound">
-</div>
-<div class="side-button-1-wr">
-    <label class="side-button-1" for="side-checkbox">
-        <div class="side-b side-open">Открыть</div>
-        <div class="side-b side-close">Закрыть</div>
+    <input type="checkbox" id="side-checkbox"/>
+    <div class="side-panel">
+        <label class="side-button-2" for="side-checkbox">+</label>
+        <div class="side-title">Выдвижная панель:</div>
+        <div class="message_box"></div>
+        <form action="" method="POST">
+            {{ form.button() }}
+            {{ form.box(class="message") }}
+        </form>
+    </div>
+    <div class="side-button-1-wr">
+        <label class="side-button-1" for="side-checkbox">
+            <div class="side-b side-open">Открыть</div>
+            <div class="side-b side-close">Закрыть</div>
+        </label>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+
+    <h4>Admin settings</h4>
+    {% if role == "Creator" %}
+        <input type="checkbox" id="admin-rules" {% if settings['admin_rules'] %} checked {% endif %}>
+        <label for="admin-rules">
+            Only admim can pause and scroll globally
+        </label>
+    {% endif %}
+
+    <h4>General settings</h4>
+    <input type="checkbox" id="sync" checked>
+    <label for="sync">
+        Synchronization
     </label>
-</div>
 
-<script src="{{ url_for('static', filename='js/room.js') }}"></script>
+    <h4>Playlist</h4>
+    <button id="add_to_playlist">
+        Add video
+    </button>
 
-<h4>Admin settings</h4>
-{% if role == "Creator" %}
-    <input type="checkbox" id="admin-rules" {% if settings['admin_rules'] %} checked {% endif %}>
-    <label for="admin-rules">
-        Only admim can pause and scroll globally
-    </label>
-{% endif %}
+    <input type="input" id="playlist_input">
+    <ol id="playlist">
 
-<h4>General settings</h4>
-<input type="checkbox" id="sync" checked>
-<label for="sync">
-    Synchronization
-</label>
+    </ol>
 
-<h4>Playlist</h4>
-<button id="add_to_playlist">
-    Add video
-</button>
-
-<input type="input" id="playlist_input">
-<ol id="playlist">
-
-</ol>
-
-<script>
-        let room_name = '{{ room_name }}'
-        let name = '{{ name }}'
-        let color = '{{ color }}'
-        let role = '{{ role }}'
-        let settings = {{ settings | tojson }}
-        let playlist = {{ playlist | safe }}
-        let current_video_index = {{ current_video_index  }}
-</script>
+    <script>
+            let room_name = '{{ room_name }}'
+            let name = '{{ name }}'
+            let color = '{{ color }}'
+            let role = '{{ role }}'
+            let settings = {{ settings | tojson }}
+            let playlist = {{ playlist | safe }}
+            let current_video_index = {{ current_video_index  }}
+    </script>
 
 
-</body>
-</html>
+{% endblock %}
