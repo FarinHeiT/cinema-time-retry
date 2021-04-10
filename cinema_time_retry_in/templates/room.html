@@ -1,68 +1,14 @@
 {% import "videoSourceMacros.html" as videoMacros %}
 {% extends 'base.html' %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/room.css') }}">
+{% endblock %}
+
 {% block body %}
-    <button type="button" class="btn btn-dark" id="banUser">Ban User</button>
-    <input type="text" id="banUsername">
-
-    {% if source == "youtube" %}
-    {{ videoMacros.youtube(video_link) }}
-    {% endif %}
-
-    {% for i in online %}
-        <p>{{ names[i] }}</p>
-    {% endfor %}
-    <h3>Online users</h3>
-    <ul id="online-users">
-
-    </ul>
-
-    <input type="text" id="rn">
-    <button id="bn">change</button>
-
-
-    <input type="checkbox" id="side-checkbox"/>
-    <div class="side-panel">
-        <label class="side-button-2" for="side-checkbox">+</label>
-        <div class="side-title">Выдвижная панель:</div>
-        <div class="message_box"></div>
-        <form action="" method="POST">
-            {{ form.button() }}
-            {{ form.box(class="message") }}
-        </form>
-    </div>
-    <div class="side-button-1-wr">
-        <label class="side-button-1" for="side-checkbox">
-            <div class="side-b side-open">Открыть</div>
-            <div class="side-b side-close">Закрыть</div>
-        </label>
-    </div>
 
     <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 
-    <h4>Admin settings</h4>
-    {% if role == "Creator" %}
-        <input type="checkbox" id="admin-rules" {% if settings['admin_rules'] %} checked {% endif %}>
-        <label for="admin-rules">
-            Only admim can pause and scroll globally
-        </label>
-    {% endif %}
-
-    <h4>General settings</h4>
-    <input type="checkbox" id="sync" checked>
-    <label for="sync">
-        Synchronization
-    </label>
-
-    <h4>Playlist</h4>
-    <button id="add_to_playlist">
-        Add video
-    </button>
-
-    <input type="input" id="playlist_input">
-    <ol id="playlist">
-
-    </ol>
 
     <script>
             let room_name = '{{ room_name }}'
@@ -74,5 +20,56 @@
             let current_video_index = {{ current_video_index  }}
     </script>
 
-
+<div class="main-container">
+        <div id="main-panel">
+            <div id="screen">
+                    {% if source == "youtube" %}
+                {{ videoMacros.youtube(video_link) }}
+                {% endif %}
+            </div>
+            <div id="control-panel">
+                <div id="playlist_con">
+                    <h4>Playlist</h4>
+                    <ion-icon id="add_to_playlist" name="add-outline" id="add-icon"> </ion-icon>
+                     <ol id="playlist">
+                     </ol>
+                </div>
+                <div id="userlist">
+                    <h4>Users</h4>
+                    <ul id="online-users">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="chat">
+            <div class="chat-header">
+                <h2>Room Name</h2>
+            </div>
+            <div id="chat-container">
+            </div>
+            <div class="chat-input">
+                <form action="" method="POST">
+                    {{ form.box(class="message") }}
+                    <button type="submit" class="fa fa-paper-plane"></button>
+                </form>
+            </div>
+        </div>
+    </div>
+<!--<input type="text" id="rn">-->
+<!--    <button id="bn">change</button>-->
+<!--    <button type="button" class="btn btn-dark" id="banUser">Ban User</button>-->
+<!--    <input type="text" id="banUsername">-->
+<!--    <h4>Admin settings</h4>-->
+<!--    {% if role == "Creator" %}-->
+<!--        <input type="checkbox" id="admin-rules" {% if settings['admin_rules'] %} checked {% endif %}>-->
+<!--        <label for="admin-rules">-->
+<!--            Only admim can pause and scroll globally-->
+<!--        </label>-->
+<!--    {% endif %}-->
+<!-- <h4>General settings</h4>-->
+<!--    <input type="checkbox" id="sync" checked>-->
+<!--    <label for="sync">-->
+<!--        Synchronization-->
+<!--    </label>-->
+<!--    <input type="input" id="playlist_input">-->
 {% endblock %}

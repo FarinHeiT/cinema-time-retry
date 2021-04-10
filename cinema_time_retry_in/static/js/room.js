@@ -41,23 +41,23 @@ socket.on('connect', () => {
     socket.emit('join_room', {'room_name': room_name})
 });
 
-document.querySelector('#bn').addEventListener('click', () => {
-    const nrn = document.querySelector('#rn').value
-    socket.emit('new_room_name', {'room_name': room_name, 'name': nrn})
-})
+// document.querySelector('#bn').addEventListener('click', () => {
+//     const nrn = document.querySelector('#rn').value
+//     socket.emit('new_room_name', {'room_name': room_name, 'name': nrn})
+// })
 
 
-document.querySelector('#banUser').addEventListener('click', () => {
-    let banUsername = document.querySelector('#banUsername').value
-    socket.emit('ban', {'user': banUsername})
-});
+// document.querySelector('#banUser').addEventListener('click', () => {
+//     let banUsername = document.querySelector('#banUsername').value
+//     socket.emit('ban', {'user': banUsername})
+// });
 
 
 // Chat
 socket.on('connect', function () {
     var form = $('form').on('submit', function (e) {
         e.preventDefault()
-        let user_input = encodeURIComponent($('input.message').val());
+        let user_input = encodeURIComponent($('.message').val());
         socket.emit('message', {
             'msg': user_input,
             'username': name,
@@ -74,13 +74,14 @@ let message_sound = new Audio("https://freesound.org/data/previews/364/364658_66
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
-    $('div.message_box').append('<div class="message_bbl"><p style="color:#'+ datam.color +'">'+ datam.username +'<span>('+datam.role+')</span> </p> <p>'+ datam.msg + '</p></div><br/>')
+    $('div#chat-container').append(`<div class="message-box"> ${datam.username} <span class="message-text" style="color:#${datam.color}">${datam.msg}</span></div>`)
     let sound_checkbox = document.getElementById("message_sound")
-    if (sound_checkbox.checked){
-        message_sound.currentTime = 0
-        message_sound.play()
-    }
+    // if (sound_checkbox.checked){
+    //     message_sound.currentTime = 0
+    //     message_sound.play()
+    // }
 });
+// <div class="message_bbl"><p style="color:#'+ datam.color +'">'+ datam.username +'<span>('+datam.role+')</span> </p> <p>'+ datam.msg + '</p></div><br/>')
 
 
 // YT JS API initialization

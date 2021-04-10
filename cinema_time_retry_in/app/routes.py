@@ -121,7 +121,7 @@ def password_in():
 
     if form.validate_on_submit():
         # global room variable for seting add geting
-        room = json.loads(redis_db.get(room_name))
+        room = json.loads(redis_db.get(str(room_name)))
 
         # checking password
         if form.password.data == room['password']:
