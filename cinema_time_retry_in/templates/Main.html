@@ -11,18 +11,33 @@
 
     <div class="container mt-5">
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroup-sizing-default">Video Link</span>
-            </div>
-            <input type="text" class="form-control" aria-label=""
+        <div class="input-container">
+                    <button class="pure-button">Create Room</button>
+                </div>
+                <div id="room-settings">
+                    <div class="modal-header">
+                        <div class="modal-title">Room Settings</div>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                            <input type="text" class="form-control" aria-label=""
                    aria-describedby="inputGroup-sizing-default" id="videoLink" placeholder="Video link">
-            <input type="text" class="form-control" aria-label=""
+                            </br>
+                        <input type="checkbox" id="private-room-checkbox">
+                            <label for="checkbox">Private</label><br>
+                            <div id="invisible">
+                                <input type="text" class="form-control" aria-label=""
                    aria-describedby="inputGroup-sizing-default" id="password" placeholder="Password(can be blank)">
-            <input type="text" class="form-control" aria-label=""
+                            </div>
+                            </br>
+                        <input type="text" class="form-control" aria-label=""
                    aria-describedby="inputGroup-sizing-default" id="Name" placeholder="Name">
-        </div>
-
+                    </br>
+                            <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
+                    </div>
+                </div>
+        <div id="modal-overlay">
+                </div>
         <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
 
         <table id="example" class="display stripe wrap" style="width:100%">
