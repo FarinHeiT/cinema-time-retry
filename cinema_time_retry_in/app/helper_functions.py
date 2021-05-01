@@ -5,6 +5,9 @@ import requests
 from bs4 import BeautifulSoup as BS
 
 
+def random_color():
+    return ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
+
 def generate_room_name():
     words = ("Haphazard", "Hodgepodge", "Hogwash", "Hoodwink", "Hubbub", "Itty-Bitty"
              , "Pompous", "Rambunctious", "Ramshackle", "Shenanigans", "Shrubs", "Skedaddle"

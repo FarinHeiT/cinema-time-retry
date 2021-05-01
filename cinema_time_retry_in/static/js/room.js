@@ -74,7 +74,7 @@ let message_sound = new Audio("https://freesound.org/data/previews/364/364658_66
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
-    $('div#chat-container').append(`<div class="message-box"> ${datam.username} <span class="message-text" style="color:#${datam.color}">${datam.msg}</span></div>`)
+    $('div#chat-container').append(`<div class="message-box"> <span style="color:#${datam.color}">${datam.username}</span> <span class="message-text" >${datam.msg}</span></div>`)
     let sound_checkbox = document.getElementById("message_sound")
     // if (sound_checkbox.checked){
     //     message_sound.currentTime = 0

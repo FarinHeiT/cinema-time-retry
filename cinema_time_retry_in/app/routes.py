@@ -11,7 +11,7 @@ from . import socket_ios
 
 from flask_socketio import join_room, SocketIO
 
-from .helper_functions import generate_room_name
+from .helper_functions import *
 
 general = Blueprint('general', __name__)
 
@@ -144,7 +144,7 @@ def password_in():
             room['names'] = names
 
             colors = room['colors']
-            colors[session['_id']] = form.color.data
+            colors[session['_id']] = random_color()
             room['colors'] = colors
 
             redis_db.set(room_name, json.dumps(room))
