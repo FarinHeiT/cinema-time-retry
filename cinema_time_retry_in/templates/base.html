@@ -11,11 +11,9 @@
     <!-- CSS only -->
     <link href="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/css/halfmoon-variables.min.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/base.css') }}">
 
         <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- JS, Popper.js, and jQuery -->
     <script src="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/js/halfmoon.min.js"></script>
@@ -26,19 +24,28 @@
     {% block head %}
     {% endblock %}
 </head>
-<body class="dark-mode" style="hight:3vh !important;">
-    <button class="btn btn-primary" type="button" onclick="toogleDarkmode()">Click me!</button>
+<body class="dark-mode">
+    <div id="dark-mode-btn-container" >
+        <button class="btn btn-primary" id="switch-darkMode" type="button" onclick="toogleDarkmode()" >Click me!</button>
+    </div>
 
+    
+    
     <script type="text/javascript">
 
-    // Dark mode toggle demo
-    function toogleDarkmode() {
-        halfmoon.toggleDarkMode();
-        
-    }
+// Dark mode toggle demo
+function toogleDarkmode() {
+    halfmoon.toggleDarkMode();
+    
+}
 </script>
-{% block body %}
-    {% endblock %}
+<div class="page-wrapper">
+    <div class="content-wrapper bg-dark-dm">
+        {% block body %}
+        
+        {% endblock %}
+    </div>
+</div>
 </body>
 
 {% block js %}

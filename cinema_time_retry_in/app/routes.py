@@ -110,13 +110,12 @@ def room(room_name):
                                current_video_index=room['current_video_index'],
                                playlist=room['playlist'])
     else:
-        return redirect(url_for('general.password_in', room_name=room_name, error=None))
+        return redirect(url_for('general.password_in', room_name=room_name))
 
 
 @general.route("/password", methods=('GET', 'POST'))
 def password_in():
     room_name = request.args.get('room_name')
-    error = request.args.get('error')
     form = forms.Password_form()
 
     if form.validate_on_submit():
@@ -132,31 +131,29 @@ def password_in():
             redis_db.set(room_name, json.dumps(room))
         else:
             # making error
-            error = "*Wrong Password"
-            return redirect(url_for('general.password_in', room_name=room_name, error=error))
+            form.password.errors.append("Wrong Password")
+            # return redirect(url_for('general.password_in', room_name=room_name))
 
         # seting username and checking if its already in
+        if form.password.data == room['password']:
+            if not form.name.data in (room['names']).values():
+                session['username'] = form.name.data
+                names = room['names']
+                names[session['_id']] = form.name.data
+                room['names'] = names
 
-        if not form.name.data in (room['names']).values():
-            session['username'] = form.name.data
-            names = room['names']
-            names[session['_id']] = form.name.data
-            room['names'] = names
+                colors = room['colors']
+                colors[session['_id']] = random_color()
+                room['colors'] = colors
 
-            colors = room['colors']
-            colors[session['_id']] = random_color()
-            room['colors'] = colors
+                redis_db.set(room_name, json.dumps(room))
 
-            redis_db.set(room_name, json.dumps(room))
-
-            return redirect(url_for('general.room', room_name=room_name))
-        else:
-            # making error
-            error = "*Name Is Taken"
-            return redirect(url_for('general.password_in', room_name=room_name, error=error))
+                return redirect(url_for('general.room', room_name=room_name))
+            else:
+                form.name.errors.append("Name is Taken")
 
     password_check = '' if json.loads(redis_db.get(room_name))['password'] == '' else None
-    return render_template("password.html", form=form, error=error, password_check=password_check)
+    return render_template("password.html", form=form, password_check=password_check)
 
 
 # making session id
