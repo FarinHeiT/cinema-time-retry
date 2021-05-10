@@ -2,13 +2,147 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/room.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/room.css') }}">
 {% endblock %}
 
 {% block body %}
 
-    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+<div class="container-fluid">
 
+                <div class="row" id='main-row'>
+                    <div class="col-10 d-flex flex-column" id='player'>
+                        {% if source == "youtube" %}
+                           {{ videoMacros.youtube(video_link) }}
+                        {% endif %}
+
+                        <img src="" id="playlist_thumbnail" >
+                        <div class="d-flex flex-row animate__animated animate__backInUp" id='control-panel'>
+                            <div class="border-right d-flex flex-column" id='playlist'>
+
+                              <div class="text-center">
+                                Playlist
+                                <div class="dropdown dropup">
+                                   <i class="fas fa-plus-circle" data-toggle="dropdown"></i>
+
+                                  <div class="dropdown-menu dropdown-menu-center w-250" aria-labelledby="dropdown-toggle-btn-1">
+
+                                    <div class="form-group">
+                                      <label for="video_url">Add video to playlist</label>
+                                      <input type="text" name="video_url" id="playlist_input" class="form-control" placeholder="Video link" required="required">
+                                    </div>
+                                    <input class="btn btn-primary btn-block" type="submit" id="add_to_playlist" value="Add">
+
+                                  </div>
+                                </div>
+
+                              </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <tbody id="playlist_table">
+
+                                        </tbody>
+                                      </table>
+                                </div>
+
+                            </div>
+
+                            <div class="border-right d-flex flex-row justify-content-center align-items-center flex-wrap align-content-center" id='online-users'>
+
+                                <div class="dropdown with-arrow dropup">
+                                  <div class="user_box" data-toggle="dropdown"><i class="far fa-user"></i> Vasya (00:00:00)</div>
+
+                                  <div class="dropdown-menu" aria-labelledby="dropdown-toggle-btn-1">
+                                    <h6 class="dropdown-header">Vasya</h6>
+                                    <div class="dropdown-divider"></div>
+
+                                    <a href="#" class="dropdown-item">Ban</a>
+                                    <a href="#" class="dropdown-item">Mute</a>
+
+                                  </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-2 d-flex flex-column align-items-center justify-content-around animate__animated animate__backInDown" id='sidebar'>
+                        <div id='room_title' class="h-50 d-flex align-items-center border-bottom" style="font-size: 1.15vw;">RoomfsdlkjewoiruwN#4343  <a href="#modal-1"><i class="fas fa-cogs ml-5"></i></a></div>
+
+                        <div class="" id="chat">
+
+                          <div class="message owner">
+                            <div class="message-author">Farin</div>
+                            <div class="message-text ">
+                              Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio aperiam veritatis tempore impedit fuga, blanditiis aliquam fugiat at. Sunt, eveniet.\
+
+                              <div class="timestamp text-right text-monospace">15:30</div>
+                            </div>
+                          </div>
+
+                          <div class="message">
+                            <div class="message-author">Farin</div>
+                            <div class="message-text ">
+                              Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio aperiam veritatis tempore impedit fuga, blanditiis aliquam fugiat at. Sunt, eveniet.\
+
+                              <div class="timestamp text-right text-monospace">15:30</div>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        <div class="chat-input-container">
+                          <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Enter message">
+                            <div class="input-group-append">
+                              <button class="btn btn-primary" type="button"><i class="far fa-paper-plane"></i></button>
+                            </div>
+                          </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal" id="modal-1" tabindex="-1" role="dialog">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <a href="#" class="close" role="button" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </a>
+                          <h5 class="modal-title">Settings</h5>
+
+                          <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Enter new room name">
+                            <div class="input-group-append">
+                              <button class="btn btn-primary" type="button">Change</button>
+                            </div>
+                          </div>
+
+                          {% if role == "Creator" %}
+                              <div class="custom-switch mt-10">
+                                <input type="checkbox" id="admin-rules" value="" checked="checked">
+                                <label for="admin-rules">Synchronize only with admin</label>
+                              </div>
+                          {% endif %}
+
+                          <div class="custom-switch mt-10">
+                            <input type="checkbox" id="sync" value="" checked="checked">
+                            <label for="sync">Synchronization</label>
+                          </div>
+
+                          <div class="text-right mt-20"> <!-- text-right = text-align: right, mt-20 = margin-top: 2rem (20px) -->
+                            <a href="#" class="btn mr-5" role="button">Close</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.1/underscore-umd-min.js"></script>
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 
     <script>
             let room_name = '{{ room_name }}'
@@ -19,57 +153,4 @@
             let playlist = {{ playlist | safe }}
             let current_video_index = {{ current_video_index  }}
     </script>
-
-<div class="main-container">
-        <div id="main-panel">
-            <div id="screen">
-                    {% if source == "youtube" %}
-                {{ videoMacros.youtube(video_link) }}
-                {% endif %}
-            </div>
-            <div id="control-panel">
-                <div id="playlist_con">
-                    <h4>Playlist</h4>
-                    <ion-icon id="add_to_playlist" name="add-outline" id="add-icon"> </ion-icon>
-                     <ol id="playlist">
-                     </ol>
-                </div>
-                <div id="userlist">
-                    <h4>Users</h4>
-                    <ul id="online-users">
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div id="chat">
-            <div class="chat-header">
-                <h2>Room Name</h2>
-            </div>
-            <div id="chat-container">
-            </div>
-            <div class="chat-input">
-                <form action="" method="POST">
-                    {{ form.box(class="message") }}
-                    <button type="submit" class="fa fa-paper-plane"></button>
-                </form>
-            </div>
-        </div>
-    </div>
-<!--<input type="text" id="rn">-->
-<!--    <button id="bn">change</button>-->
-<!--    <button type="button" class="btn btn-dark" id="banUser">Ban User</button>-->
-<!--    <input type="text" id="banUsername">-->
-<!--    <h4>Admin settings</h4>-->
-<!--    {% if role == "Creator" %}-->
-<!--        <input type="checkbox" id="admin-rules" {% if settings['admin_rules'] %} checked {% endif %}>-->
-<!--        <label for="admin-rules">-->
-<!--            Only admim can pause and scroll globally-->
-<!--        </label>-->
-<!--    {% endif %}-->
-<!-- <h4>General settings</h4>-->
-<!--    <input type="checkbox" id="sync" checked>-->
-<!--    <label for="sync">-->
-<!--        Synchronization-->
-<!--    </label>-->
-<!--    <input type="input" id="playlist_input">-->
 {% endblock %}

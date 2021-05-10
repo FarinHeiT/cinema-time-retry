@@ -1,6 +1,6 @@
 
 
 {% macro youtube(link) -%}
-    <iframe id='player-yt' width="560" height="315" frameborder="0" style="border: solid 4px #37474F" src="https://www.youtube.com/embed/{{ link }}?enablejsapi=1" frameborder="0"
+    <iframe id='player-yt' class="animate__animated animate__backInDown" width="100%" height="80%" frameborder="0" style="border: solid 4px #37474F" src="https://www.youtube.com/embed/{{ link }}?enablejsapi=1" frameborder="0"
             allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 {% endmacro %}

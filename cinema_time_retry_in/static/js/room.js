@@ -33,6 +33,22 @@ function setup_playlist_listeners() {
             socket.emit('playlist_handle', {'action': 'remove_video', 'link': playlist[remove_video_id], 'room_name': room_name})
         })
     })
+
+    // Video thumbnail preview listeners
+    let playlist_items = document.querySelectorAll('.playlist-video-title')
+    let thumbnail_image = document.querySelector('#playlist_thumbnail')
+
+    playlist_items.forEach((item) => {
+
+        item.addEventListener('mouseover', (event)=>{
+            thumbnail_image.src = `https://img.youtube.com/vi/${event.target.innerHTML}/0.jpg`
+            thumbnail_image.style.display = 'block'
+        })
+
+        item.addEventListener('mouseleave', ()=>{
+            thumbnail_image.style.display = 'none'
+        })
+    })
 }
 
 // Socketio handlers
@@ -81,7 +97,7 @@ socket.on("get_message", function (datam) {
     //     message_sound.play()
     // }
 });
-// <div class="message_bbl"><p style="color:#'+ datam.color +'">'+ datam.username +'<span>('+datam.role+')</span> </p> <p>'+ datam.msg + '</p></div><br/>')
+// // <div class="message_bbl"><p style="color:#'+ datam.color +'">'+ datam.username +'<span>('+datam.role+')</span> </p> <p>'+ datam.msg + '</p></div><br/>')
 
 
 // YT JS API initialization
@@ -107,10 +123,11 @@ function onPlayerReady(event) {
     document.getElementById('player-yt').style.borderColor = '#FF6D00';
 
     // Display playlist on page load
-    let playlist_list = document.querySelector('#playlist')
-    playlist_list.innerHTML = ""
+    let playlist_list = document.querySelector('#playlist_table')
+    playlist_list.innerHTML = ''
+
     playlist.forEach((video_id, index) => {
-        playlist_list.innerHTML += `<li>${video_id}</li><span id="play-video" data-index="${index}">Play</span> <span id="remove-video" data-index="${index}">Remove</span>`
+        playlist_list.innerHTML += `<tr><th>${index + 1}</th><td class="text-wrap playlist-video-title">${video_id}</td><td class="text-right"><i id="play-video" data-index="${index}" class="far fa-play-circle"></i> <i id="remove-video" data-index="${index}" class="far fa-trash-alt"></i></td></tr>`
 
     })
 
@@ -143,7 +160,7 @@ function changeBorderColor(playerStatus) {
 window.onload = function () {
 
     let admin_rules = document.querySelector('#admin-rules')
-    if (admin_rules) {
+    if (admin_rules.checked) {
         admin_rules.addEventListener('click', () => {
             socket.emit('change_settings', {
                 'parameter': 'admin_rules',
@@ -175,6 +192,8 @@ window.onload = function () {
     // TODO Display video titles instead of video_id
     // TODO Drag&Drop playlist items
     // TODO Checkbox for admin "delete video from playlist on ENDED event"
+
+
 }
 
 socket.on('send_new_settings', (data) => {
@@ -184,11 +203,11 @@ socket.on('send_new_settings', (data) => {
 socket.on('send_playlist_handled', (data) => {
     playlist = data['playlist']
     console.log('Playlist response: ', data['response'])
-    let playlist_list = document.querySelector('#playlist')
-    playlist_list.innerHTML = ""
+    let playlist_list = document.querySelector('#playlist_table')
+    playlist_list.innerHTML = ''
+    playlist.forEach((video_id, index) => {
+        playlist_list.innerHTML += `<tr><th>${index + 1}</th><td class="text-wrap playlist-video-title">${video_id}</td><td class="text-right"><i id="play-video" data-index="${index}" class="far fa-play-circle"></i> <i id="remove-video" data-index="${index}" class="far fa-trash-alt"></i></td></tr>`
 
-    data['playlist'].forEach((video_id, index) => {
-        playlist_list.innerHTML += `<li>${video_id}</li><span id="play-video" data-index="${index}">Play</span> <span id="remove-video" data-index="${index}">Remove</span>`
     })
 
     // Set Up  listeners again, because the previous ones were destroyed during playlist refresh
@@ -280,14 +299,25 @@ socket.on('send_room_info', (data) => {
 
     // Handle online users list
     let online_user_list = document.querySelector('#online-users')
-    online_user_list.innerHTML = ""
-    data['room_info']['online'].forEach((user_id) => {
-        let username = data['room_info']['names'][user_id]
-        online_user_list.innerHTML += '<li>' + username + toHHMMSS(user_timings[username]) + '</li>'
+    let current_rendered_users = document.querySelectorAll('.user_box')
+    let current_rendered_user_list = []
+    current_rendered_users.forEach((user_box) => {
+        current_rendered_user_list.push(user_box.dataset.uid)
     })
 
-    // Keep track of actual admin (as he can change)
-    admin_name = data['room_info']['names'][data['room_info']['admin']]
+    let online_users = data['room_info']['online']
+
+    // Re-render userlist only if somebody connected\disconnected
+    // if (!_.isEqual(current_rendered_user_list, online_users)) {
+        online_user_list.innerHTML = ""
+        online_users.forEach((user_id) => {
+            let username = data['room_info']['names'][user_id]
+            online_user_list.innerHTML += `<div class="dropdown with-arrow dropup"><div class="user_box" data-uid=${user_id} data-toggle="dropdown"><i class="far fa-user"></i> ${username} (${toHHMMSS(user_timings[username])})</div><div class="dropdown-menu" aria-labelledby="dropdown-toggle-btn-1"><h6 class="dropdown-header">${username}</h6><div class="dropdown-divider"></div><a href="#" class="dropdown-item">Ban</a><a href="#" class="dropdown-item">Mute</a></div></div>`
+        })
+
+        // Keep track of actual admin (as he can change)
+        admin_name = data['room_info']['names'][data['room_info']['admin']]
+    // }
 
 })
 
@@ -304,3 +334,5 @@ setInterval(function () {
         .then(response => response.json())
         .then(data => console.log('Ping online response: ', data))
 }, 10000)
+
+

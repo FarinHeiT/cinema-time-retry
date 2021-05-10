@@ -16,40 +16,38 @@
         <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- JS, Popper.js, and jQuery -->
-    <script src="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/js/halfmoon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
     <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 
     {% block head %}
     {% endblock %}
 </head>
-<body class="dark-mode">
+<body class="dark-mode with-custom-webkit-scrollbars with-custom-css-scrollbars">
     <div id="dark-mode-btn-container" >
         <button class="btn btn-primary" id="switch-darkMode" type="button" onclick="toogleDarkmode()" >Click me!</button>
     </div>
 
-    
-    
-    <script type="text/javascript">
 
-// Dark mode toggle demo
-function toogleDarkmode() {
-    halfmoon.toggleDarkMode();
-    
-}
-</script>
 <div class="page-wrapper">
     <div class="content-wrapper bg-dark-dm">
         {% block body %}
         
         {% endblock %}
+        <script src="https://cdn.jsdelivr.net/npm/halfmoon@1.1.1/js/halfmoon.min.js"></script>
+        <script type="text/javascript">
+
+            // Dark mode toggle demo
+            function toogleDarkmode() {
+                halfmoon.toggleDarkMode();
+
+            }
+        </script>
     </div>
 </div>
 </body>
 
 {% block js %}
 {% endblock %}
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </html>
