@@ -71,9 +71,9 @@ socket.on('connect', () => {
 
 // Chat
 socket.on('connect', function () {
-    var form = $('form').on('submit', function (e) {
+    var form = $('form#chat-form').on('submit', function (e) {
         e.preventDefault()
-        let user_input = encodeURIComponent($('.message').val());
+        let user_input = encodeURIComponent($('#message-text').val());
         socket.emit('message', {
             'msg': user_input,
             'username': name,
@@ -90,7 +90,23 @@ let message_sound = new Audio("https://freesound.org/data/previews/364/364658_66
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
-    $('div#chat-container').append(`<div class="message-box"> <span style="color:#${datam.color}">${datam.username}</span> <span class="message-text" >${datam.msg}</span></div>`)
+    if(datam.username == name){
+        $('div#chat').append(`<div class="message-box d-flex justify-content-end">
+        <div class="message owner">
+        <div class="message-author d-flex justify-content-end" style="color:${datam.color} ;">${datam.username}</div>
+        <div class="message-text d-flex justify-content-end">${datam.msg}
+        </div>
+        </div>
+        </div>`)
+    }else{
+        $('div#chat').append(`<div class="message-box d-flex justify-content-end"><div class="message">
+                            <div class="message-author" style="color:${datam.color} ;">${datam.username}</div>
+                            <div class="message-text ">
+                            ${datam.msg}
+                            </div>
+                          </div>
+                          </div>`)
+    }
     let sound_checkbox = document.getElementById("message_sound")
     // if (sound_checkbox.checked){
     //     message_sound.currentTime = 0

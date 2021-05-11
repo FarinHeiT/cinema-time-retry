@@ -47,7 +47,13 @@ i {
   font-size: 0.8em;
   overflow-y: auto;
   height: 650px;
+  max-width: -webkit-fill-available;
 }
+
+.message-box {
+  overflow-wrap: anywhere;
+}
+
 .message-text {
   background-color: dimgray;
   border-radius: 0px 29px 29px 29px;
