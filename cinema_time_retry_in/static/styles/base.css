@@ -1,0 +1,18 @@
+a:link {
+  text-decoration: none;
+}
+
+a:visited {
+  text-decoration: none;
+}
+
+#dark-mode-btn-container {
+  position: relative;
+}
+
+#switch-darkMode {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
