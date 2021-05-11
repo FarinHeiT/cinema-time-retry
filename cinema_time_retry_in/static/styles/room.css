@@ -47,6 +47,7 @@ i {
   font-size: 0.8em;
   overflow-y: auto;
   height: 650px;
+  width: 100%;
   max-width: -webkit-fill-available;
 }
 

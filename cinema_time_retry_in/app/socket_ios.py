@@ -228,8 +228,8 @@ def get_room_info(data):
 
 @socketio.on("message")
 def handleMessage(msg):
-    msg['msg'] = str(escape(msg["msg"]))
-    print(str(msg["msg"]))
+    msg['msg'] = escape(msg["msg"])
+    print(msg["msg"])
     socketio.emit("get_message", msg, broadcast=True)
 
 

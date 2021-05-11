@@ -73,7 +73,7 @@ socket.on('connect', () => {
 socket.on('connect', function () {
     var form = $('form#chat-form').on('submit', function (e) {
         e.preventDefault()
-        let user_input = encodeURIComponent($('#message-text').val());
+        let user_input = $('#message-text').val();
         socket.emit('message', {
             'msg': user_input,
             'username': name,
@@ -99,9 +99,9 @@ socket.on("get_message", function (datam) {
         </div>
         </div>`)
     }else{
-        $('div#chat').append(`<div class="message-box d-flex justify-content-end"><div class="message">
-                            <div class="message-author" style="color:${datam.color} ;">${datam.username}</div>
-                            <div class="message-text ">
+        $('div#chat').append(`<div class="message-box d-flex justify-content-start"><div class="message">
+                            <div class="message-author d-flex justify-content-start" style="color:${datam.color} ;">${datam.username}</div>
+                            <div class="message-text d-flex justify-content-start">
                             ${datam.msg}
                             </div>
                           </div>
