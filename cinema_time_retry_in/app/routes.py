@@ -86,6 +86,7 @@ def room(room_name):
         session['current_room'] = room_name
         color = room['colors'][session['_id']]
         settings = room['settings']
+        custom_room_name = room['room_name']
         role = None
         if session['_id'] == room['creator']:
             role = "Creator"
@@ -108,7 +109,8 @@ def room(room_name):
                                role=role,
                                settings=settings,
                                current_video_index=room['current_video_index'],
-                               playlist=room['playlist'])
+                               playlist=room['playlist'],
+                               custom_room_name=custom_room_name)
     else:
         return redirect(url_for('general.password_in', room_name=room_name))
 

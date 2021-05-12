@@ -76,8 +76,14 @@
                         </div>
                     </div>
 
-                    <div class="col-2 d-flex flex-column align-items-center justify-content-around animate__animated animate__backInDown" id='sidebar'>
-                        <div id='room_title' class="h-50 d-flex align-items-center border-bottom" style="font-size: 1.15vw;">RoomfsdlkjewoiruwN#4343  <a href="#modal-1"><i class="fas fa-cogs ml-5"></i></a></div>
+                    <div class="col-2 d-flex flex-column align-items-center justify-content-around animate__animated animate__backInDown" id='sidebar' style="width:-webkit-fill-available;">
+                        <div id='room_title' class="h-50 d-flex align-items-center border-bottom" style="font-size: 1.15vw; width: inherit;">
+                          <div class="d-flex justify-content-center" style="width: inherit;"><span id="room-title-span">{{custom_room_name}}</span>  
+                            <a href="#modal-1">
+                              <i class="fas fa-cogs ml-5"></i>
+                            </a>
+                          </div>
+                        </div>
 
                         <div class="" id="chat">
                         </div>
@@ -104,9 +110,9 @@
                           <h5 class="modal-title">Settings</h5>
 
                           <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Enter new room name">
+                            <input type="text" class="form-control" id="new-room-name-text" placeholder="Enter new room name" maxlength="23">
                             <div class="input-group-append">
-                              <button class="btn btn-primary" type="button">Change</button>
+                              <a href="#" class="btn btn-primary" id="new-room-name-submit" type="button">Change</a>
                             </div>
                           </div>
 

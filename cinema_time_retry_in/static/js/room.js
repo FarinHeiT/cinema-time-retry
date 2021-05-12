@@ -57,10 +57,11 @@ socket.on('connect', () => {
     socket.emit('join_room', {'room_name': room_name})
 });
 
-// document.querySelector('#bn').addEventListener('click', () => {
-//     const nrn = document.querySelector('#rn').value
-//     socket.emit('new_room_name', {'room_name': room_name, 'name': nrn})
-// })
+document.querySelector('#new-room-name-submit').addEventListener('click', () => {
+    const nrn = document.querySelector('#new-room-name-text').value
+    socket.emit('new_room_name', {'room_name': room_name, 'name': nrn})
+    document.querySelector('#room-title-span').innerHTML = nrn
+})
 
 
 // document.querySelector('#banUser').addEventListener('click', () => {
