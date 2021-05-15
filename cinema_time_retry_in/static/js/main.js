@@ -4,9 +4,10 @@ socket.on('connect', () => {
     socket.emit('connection', {'data': 'hEY'})
 });
 
-const createRoom = document.querySelector('button[name="createRoom"]');
+const createRoom = document.querySelector('#CreateRoom');
 
-createRoom.addEventListener('click', () => {
+createRoom.addEventListener('submit', (e) => {
+    e.preventDefault()
     let videoLink = document.querySelector('#videoLink').value;
     let password = document.querySelector('#password').value;
     let Name = document.querySelector('#Name').value;
@@ -14,45 +15,46 @@ createRoom.addEventListener('click', () => {
     socket.emit('create_room', {
         videoLink, password, Name
     });
-});
+    return false
+})
 
 socket.on('redirect', function (data) {
     window.location = data.url;
-});
+})
 
 // Modal window
-window.onload = function () {
-    const openRoomSettings = document.querySelector(".pure-button")
-    const closeRoomSettings = document.querySelector(".modal-close")
-    const overlay = document.querySelector('#modal-overlay')
-    const checkbox = document.querySelector('#private-room-checkbox')
-    const password = document.querySelector('#invisible')
+// window.onload = function () {
+//     const openRoomSettings = document.querySelector(".pure-button")
+//     const closeRoomSettings = document.querySelector(".modal-close")
+//     const overlay = document.querySelector('#modal-overlay')
+//     const checkbox = document.querySelector('#private-room-checkbox')
+//     const password = document.querySelector('#invisible')
 
-    openRoomSettings.onclick = function () {
-        const modal = document.querySelector('#room-settings')
-        modal.classList.add('active')
-        overlay.classList.add('active')
+//     openRoomSettings.onclick = function () {
+//         const modal = document.querySelector('#room-settings')
+//         modal.classList.add('active')
+//         overlay.classList.add('active')
 
 
-    }
+//     }
 
-    closeRoomSettings.onclick = function () {
-        const modal = document.querySelector('#room-settings')
-        modal.classList.remove('active')
-        overlay.classList.remove('active')
-    }
+//     closeRoomSettings.onclick = function () {
+//         const modal = document.querySelector('#room-settings')
+//         modal.classList.remove('active')
+//         overlay.classList.remove('active')
+//     }
 
-    overlay.onclick = function () {
-        const modal = document.querySelector('#room-settings')
-        modal.classList.remove('active')
-        overlay.classList.remove('active')
-    }
+//     overlay.onclick = function () {
+//         const modal = document.querySelector('#room-settings')
+//         modal.classList.remove('active')
+//         overlay.classList.remove('active')
+//     }
 
-    checkbox.onclick = function () {
-        if (checkbox.checked == true) {
-            password.classList.add('active')
-        } else {
-            password.classList.remove('active')
-        }
-    }
-}
+//     checkbox.onclick = function () {
+//         if (checkbox.checked == true) {
+//             password.classList.add('active')
+//         } else {
+//             password.classList.remove('active')
+//         }
+//     }
+// }

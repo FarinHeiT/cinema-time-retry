@@ -8,14 +8,42 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
 {% endblock %}
 
+{% block outsidePagewrapper %}
+<div class="modal" id="modal-1" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <a href="#" class="close" role="button" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </a>
+        <h5 class="modal-title">Create Room</h5>
+
+        <form id="CreateRoom">
+        <label for="videoLink" class="required">Video Link</label>
+        <input type="text" id="videoLink" class="form-control" placeholder="Link" required="required" maxlength="25">
+
+        <label for="password" class="mt-10">Room Password</label>
+        <input type="text" id="password" class="form-control " placeholder="Password(can be blank)">
+
+        <label for="Name" class="mt-10 required"> Username</label>
+        <input type="text" id="Name" class="form-control " placeholder="Username" required="required">
+
+        <div class="d-flex justify-content-end mt-10 ">
+        <button type="submit" class="btn btn-primary btn-block w-auto">Create Room</button>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
 {% block body %}
 
     <div class="container mt-5">
 
         <div class="input-container">
-                    <button class="pure-button">Create Room</button>
+            <a href="#modal-1" class="btn btn-primary" role="button">Open modal</a>
                 </div>
-                <div id="room-settings">
+                <!-- <div id="room-settings">
                     <div class="modal-header">
                         <div class="modal-title">Room Settings</div>
                         <button class="modal-close">&times;</button>
@@ -38,7 +66,9 @@
                     </div>
                 </div>
         <div id="modal-overlay">
-                </div>
+                </div> -->
+
+
         <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
 
         <table id="example" class="display stripe wrap" style="width:100%">
