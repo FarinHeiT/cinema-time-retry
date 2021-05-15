@@ -2,6 +2,7 @@ import json
 import threading
 import time
 import uuid
+import re
 from flask import Flask, render_template, Blueprint, url_for, redirect, session, request, escape, jsonify
 from flask_socketio import join_room as socket_join_room
 from flask_socketio import close_room
@@ -102,28 +103,36 @@ def create_room(data):
     # generating random room name
     room_name = generate_room_name()
 
-    # main room settings
-    room = {
-        'playlist': [escape(data['videoLink'])],
-        'password': escape(data['password']),
-        'users': [session['_id']],
-        'online': [],
-        'names': {session['_id']: escape(data['Name'])},
-        'baned': [],
-        'admin': session['_id'],
-        'creator': session['_id'],
-        'room_name': room_name,
-        'colors': {session['_id'] : "FFFF00"},
-        'settings': {
-            'admin_rules': True
-        },
-        'current_video_index': 0
+    raw_link = re.search(r"(?<=https:\/\/www\.youtube\.com\/watch\?v=).+$", data['videoLink'])
 
-    }
+    if raw_link:
+        data['videoLink'] = raw_link.group()
+        print(data['videoLink'])
 
-    redis_db.set(room_name, json.dumps(room))
+        # main room settings
+        room = {
+            'playlist': [escape(data['videoLink'])],
+            'password': escape(data['password']),
+            'users': [session['_id']],
+            'online': [],
+            'names': {session['_id']: escape(data['Name'])},
+            'baned': [],
+            'admin': session['_id'],
+            'creator': session['_id'],
+            'room_name': room_name,
+            'colors': {session['_id'] : "FFFF00"},
+            'settings': {
+                'admin_rules': True
+            },
+            'current_video_index': 0
 
-    socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)}, room=request.sid)
+        }
+
+        redis_db.set(room_name, json.dumps(room))
+
+        socketio.emit('redirect', {'url': url_for('general.room', room_name=room_name)}, room=request.sid)
+    else:
+        socketio.emit("error", {"title": "Invalid Link", "content": "Link to the video has to be from youtube"})
 
 
 @socketio.on('player_state_handle')

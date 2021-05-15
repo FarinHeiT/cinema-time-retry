@@ -4,6 +4,10 @@ socket.on('connect', () => {
     socket.emit('connection', {'data': 'hEY'})
 });
 
+socket.on('error', (data)=>{
+    createToast(data.title, data.content, "alert-danger")
+})
+
 const createRoom = document.querySelector('#CreateRoom');
 
 createRoom.addEventListener('submit', (e) => {

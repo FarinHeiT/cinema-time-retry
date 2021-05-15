@@ -29,9 +29,13 @@ function setup_playlist_listeners() {
     // Remove listener
     document.querySelectorAll('#remove-video').forEach((video) => {
         video.addEventListener('click', (event) => {
-            let remove_video_id = parseInt(event.target.dataset.index)
-            socket.emit('playlist_handle', {'action': 'remove_video', 'link': playlist[remove_video_id], 'room_name': room_name})
-        })
+                if(playlist.length > 1){
+                    let remove_video_id = parseInt(event.target.dataset.index)
+                    socket.emit('playlist_handle', {'action': 'remove_video', 'link': playlist[remove_video_id], 'room_name': room_name})
+                }else if(playlist.length == 1){
+                    createToast("Remove Failed", "Cant Remove Last Video", "alert-secondary")
+                }
+            })
     })
 
     // Video thumbnail preview listeners
