@@ -1,4 +1,3 @@
-let socket = io.connect('http://' + document.domain + ':' + location.port);
 let user_timings = {}
 let sync = true
 let admin_name = ""
