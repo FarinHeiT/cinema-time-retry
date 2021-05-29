@@ -2,8 +2,8 @@
 
 <!-- DataTables -->
 {% block head %}
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/table.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
 {% endblock %}
@@ -41,60 +41,10 @@
     <div class="container mt-5">
 
         <div class="input-container">
-            <a href="#modal-1" class="btn btn-primary" role="button">Open modal</a>
+            <a href="#modal-1" class="btn btn-primary" role="button">Create Room</a>
                 </div>
-                <!-- <div id="room-settings">
-                    <div class="modal-header">
-                        <div class="modal-title">Room Settings</div>
-                        <button class="modal-close">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                            <input type="text" class="form-control" aria-label=""
-                   aria-describedby="inputGroup-sizing-default" id="videoLink" placeholder="Video link">
-                            </br>
-                        <input type="checkbox" id="private-room-checkbox">
-                            <label for="checkbox">Private</label><br>
-                            <div id="invisible">
-                                <input type="text" class="form-control" aria-label=""
-                   aria-describedby="inputGroup-sizing-default" id="password" placeholder="Password(can be blank)">
-                            </div>
-                            </br>
-                        <input type="text" class="form-control" aria-label=""
-                   aria-describedby="inputGroup-sizing-default" id="Name" placeholder="Name">
-                    </br>
-                            <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
-                    </div>
-                </div>
-        <div id="modal-overlay">
-                </div> -->
 
-
-        <button type="button" class="btn btn-dark" name="createRoom">Create Room</button>
-
-        <table id="example" class="display stripe wrap" style="width:100%">
-            <thead>
-            <tr>
-                <th>Room Name</th>
-                <th>Current Video</th>
-                <th>Online Users</th>
-                <th>Creator</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>First room</td>
-                <td>;skadfjklsadfjkl;asdjklfasdjklf;</td>
-                <td>5</td>
-                <td>biba</td>
-            </tr>
-            <tr>
-                <td>Airst room</td>
-                <td>;skadfjklsadfjkl;asdjklfasdjklf;</td>
-                <td>5</td>
-                <td>biba</td>
-            </tr>
-            </tbody>
-        </table>
+        <table id="example" class="display stripe wrap" style="width:100%"></table>
     </div>
     <div class="container">
 
