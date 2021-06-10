@@ -158,6 +158,22 @@ def password_in():
     return render_template("password.html", form=form, password_check=password_check)
 
 
+@general.route('/get_rooms_data')
+def get_rooms_data():
+    keys = redis_db.keys()
+
+    if not keys == []:
+        rooms = []
+        for i in keys:
+            room = json.loads(redis_db.get(i))
+            name = room['room_name']
+            rooms.append([name, i.decode()])
+    else:
+        rooms = keys
+
+    return json.dumps({'data': rooms})
+
+
 # making session id
 @general.before_request
 def add_sid():

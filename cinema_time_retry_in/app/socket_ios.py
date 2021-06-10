@@ -241,17 +241,3 @@ def handleMessage(msg):
     print(msg["msg"])
     socketio.emit("get_message", msg, broadcast=True)
 
-@socketio.on("get_rooms_data")
-def handleRoomsData():
-    keys = redis_db.keys()
-
-    if not keys == []:
-        rooms = []
-        for i in keys:
-            room = json.loads(redis_db.get(i))
-            name = room['room_name']
-            rooms.append([name, i.decode()])
-    else:
-        rooms = keys
-
-    socketio.emit("new_room_data", json.dumps(rooms))

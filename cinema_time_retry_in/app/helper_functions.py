@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup as BS
 
 
 def random_color():
-    return ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
+    return ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])]
+
 
 def generate_room_name():
     words = ("Haphazard", "Hodgepodge", "Hogwash", "Hoodwink", "Hubbub", "Itty-Bitty"
@@ -31,6 +32,7 @@ def clear_redis_db():
 
 
 def get_youtube_title(url):
-	web_url = requests.get(url)
-	html = BS(web_url.content, 'html.parser')
-	print(html.title.get_text())
+    web_url = requests.get(url)
+    html = BS(web_url.content, 'html.parser')
+    print(html.title.get_text())
+

@@ -295,20 +295,6 @@ socket.on('send_pause', (data) => {
     }
 })
 
-// TODO Cant locate progressbar because its inside of the iframe. Need to think of alternative
-// let progressbar = document.querySelector(".ytp-progress-bar-container")
-//
-// progressbar.addEventListener('click', () => {
-//     player.pauseVideo()
-//
-//     socket.emit('player_state_handle', {
-//         'room': room_name,
-//         'action': 'pause',
-//         'current_time': player.getCurrentTime(),
-//         'username': name
-//     })
-// })
-
 setInterval(function () {
     socket.emit('get_room_info', {"room_name": room_name, "timing": [name, player.getCurrentTime()]})
 }, 1000)

@@ -62,14 +62,21 @@
 {% endblock %}
 
 {% block js %}
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
     <script>
         $(document).ready(function() {
 
             let table = $('#example').DataTable({
                 "bLengthChange": false,
-                "pagingType": "simple"
+                "pagingType": "simple",
+                "ajax": '/get_rooms_data',
+                "bSort": false,
+                "columns": [
+                    {title: "Name"},
+                    {title: "Link"}
+                ]
             });
         } );
     </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}
