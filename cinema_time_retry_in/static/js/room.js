@@ -28,13 +28,17 @@ function setup_playlist_listeners() {
     // Remove listener
     document.querySelectorAll('#remove-video').forEach((video) => {
         video.addEventListener('click', (event) => {
-                if(playlist.length > 1){
-                    let remove_video_id = parseInt(event.target.dataset.index)
-                    socket.emit('playlist_handle', {'action': 'remove_video', 'link': playlist[remove_video_id], 'room_name': room_name})
-                }else if(playlist.length == 1){
-                    createToast("Remove Failed", "Cant Remove Last Video", "alert-secondary")
-                }
-            })
+            if (playlist.length > 1) {
+                let remove_video_id = parseInt(event.target.dataset.index)
+                socket.emit('playlist_handle', {
+                    'action': 'remove_video',
+                    'link': playlist[remove_video_id],
+                    'room_name': room_name
+                })
+            } else if (playlist.length == 1) {
+                createToast("Remove Failed", "Cant Remove Last Video", "alert-secondary")
+            }
+        })
     })
 
     // Video thumbnail preview listeners
@@ -43,12 +47,12 @@ function setup_playlist_listeners() {
 
     playlist_items.forEach((item) => {
 
-        item.addEventListener('mouseover', (event)=>{
-            thumbnail_image.src = `https://img.youtube.com/vi/${event.target.innerHTML}/0.jpg`
+        item.addEventListener('mouseover', (event) => {
+            thumbnail_image.src = `https://img.youtube.com/vi/${playlist[event.target.dataset.index]}/0.jpg`
             thumbnail_image.style.display = 'block'
         })
 
-        item.addEventListener('mouseleave', ()=>{
+        item.addEventListener('mouseleave', () => {
             thumbnail_image.style.display = 'none'
         })
     })
@@ -94,7 +98,7 @@ let message_sound = new Audio("https://freesound.org/data/previews/364/364658_66
 socket.on("get_message", function (datam) {
     console.log("got message")
     console.log("message is defined")
-    if(datam.username == name){
+    if (datam.username == name) {
         $('div#chat').append(`<div class="message-box d-flex justify-content-end">
         <div class="message owner">
         <div class="message-author d-flex justify-content-end" style="color:${datam.color} ;">${datam.username}</div>
@@ -102,7 +106,7 @@ socket.on("get_message", function (datam) {
         </div>
         </div>
         </div>`)
-    }else{
+    } else {
         $('div#chat').append(`<div class="message-box d-flex justify-content-start"><div class="message">
                             <div class="message-author d-flex justify-content-start" style="color:${datam.color} ;">${datam.username}</div>
                             <div class="message-text d-flex justify-content-start">
@@ -147,7 +151,7 @@ function onPlayerReady(event) {
     playlist_list.innerHTML = ''
 
     playlist.forEach((video_id, index) => {
-        playlist_list.innerHTML += `<tr><th>${index + 1}</th><td class="text-wrap playlist-video-title">${video_id}</td><td class="text-right"><i id="play-video" data-index="${index}" class="far fa-play-circle"></i> <i id="remove-video" data-index="${index}" class="far fa-trash-alt"></i></td></tr>`
+        playlist_list.innerHTML += `<tr><th>${index + 1}</th><td class="text-wrap playlist-video-title" data-index="${index}">${playlist_titles[index]}</td><td class="text-right"><i id="play-video" data-index="${index}" class="far fa-play-circle"></i> <i id="remove-video" data-index="${index}" class="far fa-trash-alt"></i></td></tr>`
 
     })
 
@@ -204,7 +208,16 @@ window.onload = function () {
     add_to_playlist.addEventListener('click', () => {
         // TODO CLient side validation for the link
         let link = document.querySelector('#playlist_input').value
-        socket.emit('playlist_handle', {'action': 'add_video', 'link': link, 'room_name': room_name})
+        axios.get(`http://www.youtube.com/oembed?url=http://www.youtube.com/watch?v=${link}&format=json`)
+            .then(response => {
+                console.log(response.data.title)
+                socket.emit('playlist_handle', {
+                    'action': 'add_video',
+                    'link': link,
+                    'title': response.data.title,
+                    'room_name': room_name
+                })
+            })
 
     })
 
@@ -222,11 +235,12 @@ socket.on('send_new_settings', (data) => {
 
 socket.on('send_playlist_handled', (data) => {
     playlist = data['playlist']
+    playlist_titles = data['playlist_titles']
     console.log('Playlist response: ', data['response'])
     let playlist_list = document.querySelector('#playlist_table')
     playlist_list.innerHTML = ''
     playlist.forEach((video_id, index) => {
-        playlist_list.innerHTML += `<tr><th>${index + 1}</th><td class="text-wrap playlist-video-title">${video_id}</td><td class="text-right"><i id="play-video" data-index="${index}" class="far fa-play-circle"></i> <i id="remove-video" data-index="${index}" class="far fa-trash-alt"></i></td></tr>`
+        playlist_list.innerHTML += `<tr><th>${index + 1}</th><td class="text-wrap playlist-video-title" data-index="${index}">${playlist_titles[index]}</td><td class="text-right"><i id="play-video" data-index="${index}" class="far fa-play-circle"></i> <i id="remove-video" data-index="${index}" class="far fa-trash-alt"></i></td></tr>`
 
     })
 
@@ -315,14 +329,14 @@ socket.on('send_room_info', (data) => {
 
     // Re-render userlist only if somebody connected\disconnected
     // if (!_.isEqual(current_rendered_user_list, online_users)) {
-        online_user_list.innerHTML = ""
-        online_users.forEach((user_id) => {
-            let username = data['room_info']['names'][user_id]
-            online_user_list.innerHTML += `<div class="dropdown with-arrow dropup"><div class="user_box" data-uid=${user_id} data-toggle="dropdown"><i class="far fa-user"></i> ${username} (${toHHMMSS(user_timings[username])})</div><div class="dropdown-menu" aria-labelledby="dropdown-toggle-btn-1"><h6 class="dropdown-header">${username}</h6><div class="dropdown-divider"></div><a href="#" class="dropdown-item">Ban</a><a href="#" class="dropdown-item">Mute</a></div></div>`
-        })
+    online_user_list.innerHTML = ""
+    online_users.forEach((user_id) => {
+        let username = data['room_info']['names'][user_id]
+        online_user_list.innerHTML += `<div class="dropdown with-arrow dropup"><div class="user_box" data-uid=${user_id} data-toggle="dropdown"><i class="far fa-user"></i> ${username} (${toHHMMSS(user_timings[username])})</div><div class="dropdown-menu" aria-labelledby="dropdown-toggle-btn-1"><h6 class="dropdown-header">${username}</h6><div class="dropdown-divider"></div><a href="#" class="dropdown-item">Ban</a><a href="#" class="dropdown-item">Mute</a></div></div>`
+    })
 
-        // Keep track of actual admin (as he can change)
-        admin_name = data['room_info']['names'][data['room_info']['admin']]
+    // Keep track of actual admin (as he can change)
+    admin_name = data['room_info']['names'][data['room_info']['admin']]
     // }
 
 })

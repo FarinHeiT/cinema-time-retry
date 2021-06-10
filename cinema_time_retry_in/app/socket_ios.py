@@ -12,7 +12,8 @@ from . import forms
 
 from flask_socketio import join_room, SocketIO
 
-from .helper_functions import generate_room_name
+from .helper_functions import generate_room_name, get_youtube_title
+
 
 @socketio.on('join_room')
 def join_room(data):
@@ -112,6 +113,7 @@ def create_room(data):
         # main room settings
         room = {
             'playlist': [escape(data['videoLink'])],
+            'playlist_titles': [get_youtube_title(data['videoLink'])],
             'password': escape(data['password']),
             'users': [session['_id']],
             'online': [],
@@ -165,12 +167,14 @@ def playlist_handle(data):
         elif action == 'add_video':
             if video_id not in room['playlist']:
                 room['playlist'].append(escape(video_id))
+                room['playlist_titles'].append(data['title'])
                 print(f'Successfully added video to playlist')
                 response = "Successfully added video"
             else:
                 response = "This video is already in playlist"
         elif action == 'remove_video':
             if video_id in room['playlist']:
+                room['playlist_titles'].pop(room['playlist'].index(video_id))
                 room['playlist'].remove(video_id)
                 response = "Successfully removed video"
             else:
@@ -178,7 +182,7 @@ def playlist_handle(data):
 
 
         redis_db.set(room_name, json.dumps(room))
-        socketio.emit('send_playlist_handled', {'response': response, 'playlist': room['playlist']}, room=data['room_name'])
+        socketio.emit('send_playlist_handled', {'response': response, 'playlist': room['playlist'], 'playlist_titles': room['playlist_titles']}, room=data['room_name'])
 
     except Exception as e:
         print(e)

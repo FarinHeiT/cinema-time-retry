@@ -110,6 +110,7 @@ def room(room_name):
                                settings=settings,
                                current_video_index=room['current_video_index'],
                                playlist=room['playlist'],
+                               playlist_titles=room['playlist_titles'],
                                custom_room_name=custom_room_name)
     else:
         return redirect(url_for('general.password_in', room_name=room_name))

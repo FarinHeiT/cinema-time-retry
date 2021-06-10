@@ -31,8 +31,6 @@ def clear_redis_db():
         redis_db.delete(i)
 
 
-def get_youtube_title(url):
-    web_url = requests.get(url)
-    html = BS(web_url.content, 'html.parser')
-    print(html.title.get_text())
-
+def get_youtube_title(video_id):
+    url = f'https://www.youtube.com/oembed?url=http://www.youtube.com/watch?v={video_id}&format=json'
+    return requests.get(url).json()['title']
