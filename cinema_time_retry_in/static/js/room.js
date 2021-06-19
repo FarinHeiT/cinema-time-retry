@@ -273,9 +273,15 @@ function onPlayerStateChange(event) {
         socket.emit('change_video', {'next_video_index': current_video_index + 1, 'room_name': room_name})
     }
 
+    // If an ordinary users unpauses - sync him with admin
+    if (role != 'Creator' && settings['admin_rules'] && block == false && event.data == 1 && sync_checkbox.checked) {
+        console.log('nonadmin  seek')
+        block = true
+        player.seekTo(user_timings[admin_name])
+        player.playVideo()
+    }
     // Only send if the state is 1 || 2 and synchronization if enabled
-    if ((event.data == 1 || event.data == 2) && sync_checkbox.checked) {
-
+    else if ((event.data == 1 || event.data == 2) && sync_checkbox.checked) {
         // Send if the user is admin or if correspondent settings are set
         if ((role == "Creator" || !settings['admin_rules']) && block == false) {
             socket.emit('player_state_handle', {
@@ -285,8 +291,10 @@ function onPlayerStateChange(event) {
                 'username': name
             })
         }
+
         block = false
     }
+
 }
 
 socket.on('send_unpause', (data) => {
