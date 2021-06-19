@@ -167,8 +167,11 @@ def get_rooms_data():
         rooms = []
         for i in keys:
             room = json.loads(redis_db.get(i))
-            name = room['room_name']
-            rooms.append([name, i.decode()])
+            name = f'<a href="/room/{i.decode()}">{room["room_name"]}</a>'
+            users = len(room["users"])
+            privacy = False if room["password"] == "" else True
+            current_video = room['playlist_titles'][room['current_video_index']]
+            rooms.append([name, users, privacy, current_video])
     else:
         rooms = keys
 

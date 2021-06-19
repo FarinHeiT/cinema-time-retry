@@ -17,3 +17,7 @@ socket.on('connect', () => {
 socket.on('redirect', function (data) {
     window.location = data.url;
 })
+
+function toogleDarkmode() {
+    halfmoon.toggleDarkMode();
+}

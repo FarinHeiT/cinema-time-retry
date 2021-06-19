@@ -20,4 +20,14 @@ socket.on('error', (data) => {
 setInterval(function () {
     console.log('Updating table...')
     $('#example').DataTable().ajax.reload()
+    var head = document.querySelector("thead")
+    var body = document.querySelector("tbody")
+    head.classList.add("bg-light-lm")
+    head.classList.add("bg-dark-light-dm")
+    body.classList.add("bg-light-lm")
+    body.classList.add("bg-dark-light-dm")
+
+    // body.forEach(function(i){
+    //     i.classList.add("bg-light-lm bg-dark-light-dm")
+    // })
 }, 10000)

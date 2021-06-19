@@ -34,3 +34,4 @@ def clear_redis_db():
 def get_youtube_title(video_id):
     url = f'https://www.youtube.com/oembed?url=http://www.youtube.com/watch?v={video_id}&format=json'
     return requests.get(url).json()['title']
+
